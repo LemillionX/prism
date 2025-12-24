@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import math
-
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QGridLayout, QLabel, QWidget
 
@@ -24,11 +22,13 @@ class DataView(QWidget):
         for i, value in enumerate(data.values()):
             row = i // cols
             col = i % cols
-
-            label = QLabel(str(value))
-            label.setAlignment(
+            alignment = (
                 Qt.AlignmentFlag.AlignLeft if col == 0 else Qt.AlignmentFlag.AlignRight
             )
+            alignment = alignment | Qt.AlignmentFlag.AlignVCenter
+
+            label = QLabel(str(value))
+            label.setAlignment(alignment)
             self.main_layout.addWidget(label, row, col)
 
 
