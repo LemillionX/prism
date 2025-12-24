@@ -57,6 +57,7 @@ class Browser(QWidget):
 
 if __name__ == "__main__":
     import sys
+    from pathlib import Path
 
     from qtpy.QtWidgets import QApplication
 
@@ -69,6 +70,7 @@ if __name__ == "__main__":
             "tasks": [
                 {
                     "name": task,
+                    "path": Path(f"Clementine{i:02d}", task).as_posix(),
                     "files": [
                         {
                             "name": f"Clementine{i:02d}_{task}_v{idx:03d}",
