@@ -5,7 +5,7 @@ from pathlib import Path
 
 from qtpy.QtCore import QEvent, QObject, QRect, QSize, Qt, Signal
 from qtpy.QtGui import QMouseEvent, QPixmap
-from qtpy.QtWidgets import QGridLayout, QLabel, QStackedLayout, QVBoxLayout, QWidget
+from qtpy.QtWidgets import QGridLayout, QLabel, QVBoxLayout, QWidget
 
 from sbtw.core.constant import BROWSER_EXPLORER_ICON, PLUS_ICON, PROJECTS_THUMBNAIL
 from sbtw.core.log import logger
