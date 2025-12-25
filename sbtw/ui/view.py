@@ -15,7 +15,6 @@ from qtpy.QtWidgets import (
 
 from sbtw.actions.base import ActionBase
 from sbtw.core.config import ACTIONS
-from sbtw.core.log import logger
 from sbtw.ui.row import Row
 
 
