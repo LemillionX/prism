@@ -1,9 +1,10 @@
 [project]
-name = "prism"
+name = "sbtw"
 version = "0.1.0"
 description = "Project manager based on Prism"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
+    "pyside6-essentials>=6.10.1",
     "qtpy>=2.4.3",
 ]
