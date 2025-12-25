@@ -47,7 +47,20 @@ class View(QWidget):
         self.tree.customContextMenuRequested.connect(
             partial(self.show_context_menu, ACTIONS)
         )
+        self.tree.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Expanding,
+        )
+        self.tree.setMinimumWidth(0)
+        self.tree.header().setStretchLastSection(True)
         main_layout.addWidget(self.tree)
+
+        # ---------- UI ----------
+        self.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Expanding,
+        )
+        self.setMinimumWidth(0)
 
         # ---------- Init Data ----------
         self.tree.itemClicked.connect(self.on_item_clicked)
@@ -106,19 +119,6 @@ class View(QWidget):
 
         menu = QMenu(self)
         self.add_actions(menu, actions, row)
-        # # Example actions
-        # action_view = QAction("View Details", self)
-        # action_edit = QAction("Edit", self)
-        # action_delete = QAction("Delete", self)
-
-        # menu.addAction(action_view)
-        # menu.addAction(action_edit)
-        # menu.addAction(action_delete)
-
-        # # Connect actions
-        # action_view.triggered.connect(partial(self.on_view, row))
-        # action_edit.triggered.connect(partial(self.on_edit, row))
-        # action_delete.triggered.connect(partial(self.on_delete, row))
 
         # Show menu at the global position
         menu.exec(self.tree.viewport().mapToGlobal(pos))
@@ -132,15 +132,6 @@ class View(QWidget):
         qaction = QAction(action.name(), self)
         menu.addAction(qaction)
         qaction.triggered.connect(partial(action.execute, **row.data))
-
-    def on_view(self, row: Row):
-        logger.info("Viewing %s ...", row.data.get("name"))
-
-    def on_edit(self, row: Row):
-        logger.info("Editing %s ...", row.data.get("name"))
-
-    def on_delete(self, row: Row):
-        logger.info("Deleting %s ...", row.data.get("name"))
 
 
 if __name__ == "__main__":

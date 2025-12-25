@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QHBoxLayout, QLabel, QSplitter, QWidget
+from qtpy.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QSplitter, QWidget
 
 from sbtw.ui.assets import AssetsView
 from sbtw.ui.files import FilesView
@@ -37,9 +37,16 @@ class Browser(QWidget):
         splitter.addWidget(self.files_view)
 
         # ---------- UI Settings----------
-        for i in range(3):
-            # Disable Collapse within Splitter
-            splitter.setCollapsible(i, False)
+        self.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Expanding,
+        )
+        self.setMinimumSize(0, 0)
+        splitter.setStretchFactor(0, 1)
+        splitter.setStretchFactor(1, 2)
+        splitter.setStretchFactor(2, 1)
+        splitter.setStretchFactor(3, 5)
+        splitter.setChildrenCollapsible(False)
 
         # ---------- Connections ----------
         self.assets_view.row_selected.connect(self.on_row_selected)
