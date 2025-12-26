@@ -31,6 +31,8 @@ def scale_and_crop_center(pixmap: QPixmap, target_size: QSize) -> QPixmap:
 
 
 class ProjectsGrid(QWidget):
+    project_clicked = Signal(str)
+
     def __init__(self, projects: list[dict], parent: QWidget | None = None):
         super().__init__(parent=parent)
 
@@ -63,16 +65,15 @@ class ProjectsGrid(QWidget):
                 "icon": BROWSER_EXPLORER_ICON,
             },
         ]
-        for i, action in enumerate(actions):
-            row = (len(projects) + i) // cols
-            col = (len(projects) + i) % row
+        row = len(projects) // cols
+        for col, action in enumerate(actions):
             btn = ProjectLabel(
                 text=action.get("name"), thumbnail=action.get("icon"), parent=self
             )
             btn.clicked.connect(
                 partial(self.on_project_clicked, {"action": action.get("name")})
             )
-            main_layout.addWidget(btn, row, col)
+            main_layout.addWidget(btn, row + 1, col)
 
         if parent:
             parent.installEventFilter(self)
@@ -83,7 +84,8 @@ class ProjectsGrid(QWidget):
         elif project.get("action") == "Open current Project in Explorer":
             logger.info("Opening current project in Explorer ")
         else:
-            logger.info(f"Switching on project {project.get('name')}")
+            logger.info("Switching on project %s", project.get("name"))
+            self.project_clicked.emit(project.get("name"))
         self.hide()
 
     def eventFilter(self, watched: QObject, event: QEvent):
@@ -104,11 +106,14 @@ class ProjectsLabel(Label):
 class ProjectLabel(QWidget):
     clicked = Signal()
 
-    def __init__(self, text: str, thumbnail: Path, parent=None):
-        super().__init__(parent)
+    def __init__(
+        self, text: str, thumbnail: Path | None = None, parent: QWidget | None = None
+    ):
+        super().__init__(parent=parent)
 
         width, height = 200, 112
         text_height = 24
+        thumbnail = thumbnail or PROJECTS_THUMBNAIL
 
         # ------------- Layout -------------
         main_layout = QVBoxLayout(self)

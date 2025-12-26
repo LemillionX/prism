@@ -1,14 +1,19 @@
 from __future__ import annotations
 
-from qtpy.QtCore import Qt
+from pathlib import Path
+
+from qtpy.QtCore import QObject, Qt, Signal
 from qtpy.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QSplitter, QWidget
 
 from sbtw.ui.assets import AssetsView
 from sbtw.ui.files import FilesView
 from sbtw.ui.tasks import TasksView
+from sbtw.ui.view import View
 
 
 class Browser(QWidget):
+    row_clicked = Signal(QObject, Path)
+
     def __init__(self, data: dict, parent: QWidget | None = None):
         super().__init__(parent)
 
@@ -54,12 +59,8 @@ class Browser(QWidget):
         self.files_view.row_selected.connect(self.on_row_selected)
 
     def on_row_selected(self, data: dict):
-        if isinstance(self.sender(), AssetsView):
-            self.tasks_view.set_rows(rows=data.get("tasks", []))
-            self.files_view.clear_tree()
-
-        if isinstance(self.sender(), TasksView):
-            self.files_view.set_rows(rows=data.get("files", []))
+        if isinstance(self.sender(), View):
+            self.row_clicked.emit(self.sender(), data.get("path"))
 
 
 if __name__ == "__main__":
