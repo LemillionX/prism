@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from qtpy.QtWidgets import QWidget
 
+from sbtw.ui.row import Row
 from sbtw.ui.view import View
 
 
@@ -15,8 +16,12 @@ class TasksView(View):
         super().__init__(rows=rows, actions=actions, parent=parent)
 
     def is_action_valid(self, **kwargs):
-        if (task := kwargs.get("key")) and (row := kwargs.get("row")):
-            return task == row.data.get("name") or super().is_action_valid(**kwargs)
+        if task := kwargs.get("key"):
+            row = kwargs.get("row")
+            name = row.data.get("name") if isinstance(row, Row) else "TasksView"
+            return task == name or (
+                name != "TasksView" and super().is_action_valid(**kwargs)
+            )
         return super().is_action_valid(**kwargs)
 
 

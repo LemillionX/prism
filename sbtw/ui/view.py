@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from functools import partial
+from pathlib import Path
 from typing import TYPE_CHECKING
 
-from qtpy.QtCore import QPoint, Qt, Signal
+from qtpy.QtCore import QObject, QPoint, Qt, Signal
 from qtpy.QtWidgets import (
     QAction,
     QMenu,
@@ -23,6 +24,7 @@ if TYPE_CHECKING:
 class View(QWidget):
     row_selected = Signal(dict)
     row_clicked = Signal(dict)
+    updated = Signal(QObject, Path)
 
     def __init__(
         self,
@@ -35,6 +37,7 @@ class View(QWidget):
         # ---------- Variables ----------
         self.keys = {"name"}
         self.keys.update(keys or {})
+        self.entity = None
 
         # ---------- Layout ----------
         main_layout = QVBoxLayout(self)
@@ -95,9 +98,13 @@ class View(QWidget):
                     widget.deleteLater()
                 del item
 
-    def set_rows(self, rows: list[dict]):
+    def get_entity(self, path: Path) -> dict:
+        return {"name": path.parent.stem, "path": path.parent}
+
+    def set_rows(self, rows: list[dict], entity: dict | None = None):
         self.clear_tree()
         # ---------- Data ----------
+        self.entity = entity
         for row in rows:
             self.add_row(row)
 
@@ -119,15 +126,14 @@ class View(QWidget):
             self.row_clicked.emit(row.data)
 
     def show_context_menu(self, actions: dict, pos: QPoint):
-        # Map from the click position to a tree item
-        if not (item := self.tree.itemAt(pos)):
-            return
-
-        if not (row := self.tree.itemWidget(item, 0)):
-            return
-
         menu = QMenu(self)
-        self.add_actions(menu, actions, row)
+
+        # Menu for item on the view
+        if (item := self.tree.itemAt(pos)) and (row := self.tree.itemWidget(item, 0)):
+            self.add_actions(menu, actions, row=row)
+        else:
+            # Menu for the view
+            self.add_actions(menu, actions, entity=self.entity)
 
         # Show menu at the global position
         menu.exec(self.tree.viewport().mapToGlobal(pos))
@@ -135,16 +141,32 @@ class View(QWidget):
     def is_action_valid(self, **kwargs):
         return kwargs.get("key") == "Base"
 
-    def add_actions(self, menu: QMenu, actions: list, row: Row):
+    def add_actions(
+        self,
+        menu: QMenu,
+        actions: list,
+        row: Row | None = None,
+        entity: dict | None = None,
+    ):
         for key, _actions in actions.items():
             for action in _actions:
                 if self.is_action_valid(action=action, row=row, key=key):
-                    self.add_action(menu, action, row)
+                    self.add_action(menu, action, row, entity)
 
-    def add_action(self, menu: QMenu, action: ActionBase, row: Row):
+    def add_action(
+        self,
+        menu: QMenu,
+        action: ActionBase,
+        row: Row | None = None,
+        entity: dict | None = None,
+    ):
         qaction = QAction(action.name(), self)
-        menu.addAction(qaction)
-        qaction.triggered.connect(partial(action.execute, **row.data, view=self))
+        if row or entity:
+            menu.addAction(qaction)
+        if row:
+            qaction.triggered.connect(partial(action.execute, **row.data, view=self))
+        if entity:
+            qaction.triggered.connect(partial(action.execute, **entity, view=self))
 
 
 if __name__ == "__main__":

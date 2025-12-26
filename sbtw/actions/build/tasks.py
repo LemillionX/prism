@@ -1,7 +1,28 @@
 from pathlib import Path
 
-from sbtw.actions.base import BuildBase
+from qtpy.QtWidgets import QInputDialog
+
+from sbtw.actions.base import ActionBase, BuildBase
 from sbtw.core.log import logger
+from sbtw.ui.view import View
+
+
+class AddTask(ActionBase):
+    @staticmethod
+    def name() -> str:
+        return "Add Task"
+
+    def _execute(self, **kwargs):
+        if path := kwargs.get("path"):
+            task, ok = QInputDialog.getText(None, "Task", "Enter Task name:")
+            task = task.title().replace("_", " ").replace(" ", "")
+            if ok:
+                (path / task).mkdir(exist_ok=True, parents=True)
+                kwargs["path"] = path / task
+
+    def post_run(self, **kwargs):
+        if (view := (kwargs.get("view"))) and isinstance(view, View):
+            view.updated.emit(view, kwargs.get("path"))
 
 
 class BuildScene(BuildBase):

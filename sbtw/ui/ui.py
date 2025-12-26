@@ -47,6 +47,7 @@ class MainWindow(QMainWindow):
         header.projects_grid.project_opened.connect(self.on_project_opened)
         self.browser.row_selected.connect(self.on_row_selected)
         self.browser.row_clicked.connect(self.on_row_clicked)
+        self.browser.tasks_view.updated.connect(self.on_view_updated)
 
     def on_project_opened(self):
         logger.info("Opening %s ...", self.manager.project.root.parent.as_posix())
@@ -54,7 +55,10 @@ class MainWindow(QMainWindow):
 
     def on_project_clicked(self, project: str):
         self.manager.set_project(project)
-        self.browser.assets_view.set_rows(self.manager.project.get_entities())
+        self.browser.assets_view.set_rows(
+            rows=self.manager.project.get_entities(),
+            entity={"name": project, "path": self.manager.project.root},
+        )
         self.browser.tasks_view.clear_tree()
         self.browser.files_view.clear_tree()
 
@@ -63,12 +67,16 @@ class MainWindow(QMainWindow):
         os.startfile(path)
 
     def on_row_selected(self, sender: QObject, path: Path):
+        if not path:
+            return
+
         tokens = path.parts
         if isinstance(sender, AssetsView):
             self.browser.tasks_view.set_rows(
                 rows=self.manager.project.get_tasks(
                     entity=tokens[-1], entity_type=EntityType(tokens[-2])
-                )
+                ),
+                entity={"name": tokens[-1], "path": path},
             )
             self.browser.files_view.clear_tree()
 
@@ -78,7 +86,8 @@ class MainWindow(QMainWindow):
                     task=tokens[-1],
                     entity=tokens[-2],
                     entity_type=EntityType(tokens[-3]),
-                )
+                ),
+                entity={"name": tokens[-1], "path": path},
             )
 
         if isinstance(sender, FilesView):
@@ -87,7 +96,20 @@ class MainWindow(QMainWindow):
                     task=tokens[-2],
                     entity=tokens[-3],
                     entity_type=EntityType(tokens[-4]),
-                )
+                ),
+                entity={"name": tokens[-2], "path": path.parent},
+            )
+
+    def on_view_updated(self, sender: QObject, path: Path):
+        tokens = path.parts
+
+        if isinstance(sender, TasksView):
+            self.browser.tasks_view.set_rows(
+                rows=self.manager.project.get_tasks(
+                    entity=tokens[-1],
+                    entity_type=EntityType(tokens[-2]),
+                ),
+                entity={"name": tokens[-1], "path": path},
             )
 
 
