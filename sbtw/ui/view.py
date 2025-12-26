@@ -123,7 +123,7 @@ class View(QWidget):
         menu.exec(self.tree.viewport().mapToGlobal(pos))
 
     def is_action_valid(self, **kwargs):
-        return False
+        return kwargs.get("key") == "Base"
 
     def add_actions(self, menu: QMenu, actions: list, row: Row):
         for key, _actions in actions.items():

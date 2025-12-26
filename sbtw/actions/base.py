@@ -1,4 +1,6 @@
+import os
 from abc import ABCMeta, abstractmethod
+from pathlib import Path
 from typing import Any
 
 from sbtw.core.log import logger
@@ -51,3 +53,13 @@ class BuildBase(ActionBase):
     @staticmethod
     def name() -> str:
         return "Build"
+
+
+class OpenInExplorer(ActionBase):
+    @staticmethod
+    def name() -> str:
+        return "Open In Explorer"
+
+    def _execute(self, **kwargs):
+        path = Path(kwargs.get("path"))
+        os.startfile(path.parent)

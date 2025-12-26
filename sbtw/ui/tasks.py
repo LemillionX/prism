@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from qtpy.QtWidgets import QMenu, QWidget
+from qtpy.QtWidgets import QWidget
 
-from sbtw.actions.base import ActionBase
-from sbtw.ui.row import Row
 from sbtw.ui.view import View
 
 
@@ -13,7 +11,7 @@ class TasksView(View):
 
     def is_action_valid(self, **kwargs):
         if (task := kwargs.get("key")) and (row := kwargs.get("row")):
-            return task == row.data.get("name")
+            return task == row.data.get("name") or super().is_action_valid(**kwargs)
         return super().is_action_valid(**kwargs)
 
 

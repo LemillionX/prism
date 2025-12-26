@@ -32,6 +32,7 @@ def scale_and_crop_center(pixmap: QPixmap, target_size: QSize) -> QPixmap:
 
 class ProjectsGrid(QWidget):
     project_clicked = Signal(str)
+    project_opened = Signal()
 
     def __init__(self, projects: list[dict], parent: QWidget | None = None):
         super().__init__(parent=parent)
@@ -83,6 +84,7 @@ class ProjectsGrid(QWidget):
             logger.info("Creating a new project")
         elif project.get("action") == "Open current Project in Explorer":
             logger.info("Opening current project in Explorer ")
+            self.project_opened.emit()
         else:
             logger.info("Switching on project %s", project.get("name"))
             self.project_clicked.emit(project.get("name"))

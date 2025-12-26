@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 from qtpy.QtCore import QObject
 from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
@@ -40,7 +42,11 @@ class MainWindow(QMainWindow):
 
         # ------------- Signals -------------
         header.projects_grid.project_clicked.connect(self.on_project_clicked)
+        header.projects_grid.project_opened.connect(self.on_project_opened)
         self.browser.row_clicked.connect(self.on_row_clicked)
+
+    def on_project_opened(self):
+        os.startfile(self.manager.project.root.parent)
 
     def on_project_clicked(self, project: str):
         self.manager.set_project(project)
