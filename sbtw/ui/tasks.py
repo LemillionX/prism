@@ -11,9 +11,10 @@ class TasksView(View):
     def __init__(self, rows: list[dict] | None = None, parent: QWidget | None = None):
         super().__init__(rows=rows, parent=parent)
 
-    def add_action(self, menu: QMenu, key: str, action: ActionBase, row: Row):
-        if key == row.data.get("name"):
-            super().add_action(menu, key, action, row)
+    def is_action_valid(self, **kwargs):
+        if (task := kwargs.get("key")) and (row := kwargs.get("row")):
+            return task == row.data.get("name")
+        return super().is_action_valid(**kwargs)
 
 
 if __name__ == "__main__":

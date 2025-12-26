@@ -122,12 +122,16 @@ class View(QWidget):
         # Show menu at the global position
         menu.exec(self.tree.viewport().mapToGlobal(pos))
 
+    def is_action_valid(self, **kwargs):
+        return False
+
     def add_actions(self, menu: QMenu, actions: list, row: Row):
         for key, _actions in actions.items():
             for action in _actions:
-                self.add_action(menu, key, action, row)
+                if self.is_action_valid(action=action, row=row, key=key):
+                    self.add_action(menu, action, row)
 
-    def add_action(self, menu: QMenu, key: str, action: ActionBase, row: Row):
+    def add_action(self, menu: QMenu, action: ActionBase, row: Row):
         qaction = QAction(action.name(), self)
         menu.addAction(qaction)
         qaction.triggered.connect(partial(action.execute, **row.data))
