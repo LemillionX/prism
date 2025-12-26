@@ -5,6 +5,7 @@ from pathlib import Path
 from qtpy.QtCore import QObject, Qt, Signal
 from qtpy.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QSplitter, QWidget
 
+from sbtw.core.config import ACTIONS
 from sbtw.ui.assets import AssetsView
 from sbtw.ui.files import FilesView
 from sbtw.ui.tasks import TasksView
@@ -28,16 +29,16 @@ class Browser(QWidget):
         splitter.addWidget(QSplitter(Qt.Vertical))
 
         # ---------- Entity ----------
-        self.assets_view = AssetsView(rows=data, parent=self)
+        self.assets_view = AssetsView(rows=data, actions=ACTIONS, parent=self)
         splitter.addWidget(self.assets_view)
 
         # ---------- Tasks ----------
-        self.tasks_view = TasksView(parent=self)
+        self.tasks_view = TasksView(actions=ACTIONS, parent=self)
         self.tasks_view.layout().insertWidget(0, QLabel("Tasks"))
         splitter.addWidget(self.tasks_view)
 
         # ---------- Files ----------
-        self.files_view = FilesView(parent=self)
+        self.files_view = FilesView(actions=ACTIONS, parent=self)
         self.files_view.layout().insertWidget(0, QLabel("Files"))
         splitter.addWidget(self.files_view)
 

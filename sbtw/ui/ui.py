@@ -9,6 +9,7 @@ from sbtw.core.manager import ProjectManager
 from sbtw.core.project import EntityType
 from sbtw.ui.assets import AssetsView
 from sbtw.ui.browser import Browser
+from sbtw.ui.files import FilesView
 from sbtw.ui.header import Header
 from sbtw.ui.tasks import TasksView
 
@@ -70,6 +71,15 @@ class MainWindow(QMainWindow):
                     task=tokens[-1],
                     entity=tokens[-2],
                     entity_type=EntityType(tokens[-3]),
+                )
+            )
+
+        if isinstance(sender, FilesView):
+            self.browser.files_view.set_rows(
+                rows=self.manager.project.get_files(
+                    task=tokens[-2],
+                    entity=tokens[-3],
+                    entity_type=EntityType(tokens[-4]),
                 )
             )
 

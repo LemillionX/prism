@@ -6,8 +6,18 @@ from sbtw.ui.view import View
 
 
 class FilesView(View):
-    def __init__(self, rows: list[dict] | None = None, parent: QWidget | None = None):
-        super().__init__(rows=rows, parent=parent)
+    def __init__(
+        self,
+        rows: list[dict] | None = None,
+        actions: dict | None = None,
+        parent: QWidget | None = None,
+    ):
+        super().__init__(rows=rows, actions=actions, parent=parent)
+
+    def is_action_valid(self, **kwargs):
+        if task := kwargs.get("key"):
+            return task == "FilesBase" or super().is_action_valid(**kwargs)
+        return super().is_action_valid(**kwargs)
 
 
 if __name__ == "__main__":

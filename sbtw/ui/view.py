@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qtpy.QtCore import QPoint, Qt, Signal
 from qtpy.QtWidgets import (
@@ -13,9 +14,10 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from sbtw.actions.base import ActionBase
-from sbtw.core.config import ACTIONS
 from sbtw.ui.row import Row
+
+if TYPE_CHECKING:
+    from sbtw.actions.base import ActionBase
 
 
 class View(QWidget):
@@ -25,6 +27,7 @@ class View(QWidget):
         self,
         rows: list[dict] | None = None,
         keys: set | None = None,
+        actions: dict | None = None,
         parent: QWidget | None = None,
     ):
         super().__init__(parent)
@@ -44,7 +47,7 @@ class View(QWidget):
         self.tree.setIndentation(16)
         self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
         self.tree.customContextMenuRequested.connect(
-            partial(self.show_context_menu, ACTIONS)
+            partial(self.show_context_menu, actions or {})
         )
         self.tree.setSizePolicy(
             QSizePolicy.Policy.Expanding,
@@ -134,7 +137,7 @@ class View(QWidget):
     def add_action(self, menu: QMenu, action: ActionBase, row: Row):
         qaction = QAction(action.name(), self)
         menu.addAction(qaction)
-        qaction.triggered.connect(partial(action.execute, **row.data))
+        qaction.triggered.connect(partial(action.execute, **row.data, view=self))
 
 
 if __name__ == "__main__":

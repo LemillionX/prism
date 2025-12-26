@@ -146,7 +146,7 @@ class ProjectLabel(QWidget):
             }
         """)
         label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-        label.show()  # must call show manually
+        label.show()
 
     def mousePressEvent(self, event: QMouseEvent):
         if event.button() == Qt.LeftButton:

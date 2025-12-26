@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from sbtw.core.log import logger
+from sbtw.ui.view import View
 
 
 class ActionBase(metaclass=ABCMeta):
@@ -15,7 +16,8 @@ class ActionBase(metaclass=ABCMeta):
         logger.debug("%s has no pre-run", self)
 
     def post_run(self, **kwargs):
-        logger.debug("%s has no post-run", self)
+        if (view := (kwargs.get("view"))) and isinstance(view, View):
+            view.row_selected.emit(kwargs)
 
     @abstractmethod
     def _execute(self, **kwargs: Any):
