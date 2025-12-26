@@ -21,7 +21,8 @@ if TYPE_CHECKING:
 
 
 class View(QWidget):
-    row_selected = Signal(dict)  # emits data of clicked row
+    row_selected = Signal(dict)
+    row_clicked = Signal(dict)
 
     def __init__(
         self,
@@ -66,6 +67,7 @@ class View(QWidget):
 
         # ---------- Init Data ----------
         self.tree.itemClicked.connect(self.on_item_clicked)
+        self.tree.itemDoubleClicked.connect(self.on_item_double_clicked)
         self.set_rows(rows=rows or [])
 
     def add_row(self, data: dict, parent_item: QTreeWidgetItem | None = None):
@@ -110,6 +112,11 @@ class View(QWidget):
         # Get associated Row
         if (row := self.tree.itemWidget(item, 0)) and isinstance(row, Row):
             self.row_selected.emit(row.data)
+
+    def on_item_double_clicked(self, item: QTreeWidgetItem):
+        # Get associated Row
+        if (row := self.tree.itemWidget(item, 0)) and isinstance(row, Row):
+            self.row_clicked.emit(row.data)
 
     def show_context_menu(self, actions: dict, pos: QPoint):
         # Map from the click position to a tree item

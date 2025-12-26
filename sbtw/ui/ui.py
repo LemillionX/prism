@@ -5,6 +5,7 @@ import os
 from qtpy.QtCore import QObject
 from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
+from sbtw.core.log import logger
 from sbtw.core.manager import ProjectManager
 from sbtw.core.project import EntityType
 from sbtw.ui.assets import AssetsView
@@ -44,9 +45,11 @@ class MainWindow(QMainWindow):
         # ------------- Signals -------------
         header.projects_grid.project_clicked.connect(self.on_project_clicked)
         header.projects_grid.project_opened.connect(self.on_project_opened)
+        self.browser.row_selected.connect(self.on_row_selected)
         self.browser.row_clicked.connect(self.on_row_clicked)
 
     def on_project_opened(self):
+        logger.info("Opening %s ...", self.manager.project.root.parent.as_posix())
         os.startfile(self.manager.project.root.parent)
 
     def on_project_clicked(self, project: str):
@@ -55,7 +58,11 @@ class MainWindow(QMainWindow):
         self.browser.tasks_view.clear_tree()
         self.browser.files_view.clear_tree()
 
-    def on_row_clicked(self, sender: QObject, path: Path):
+    def on_row_clicked(self, path: Path):
+        logger.info("Opening %s ...", path.as_posix())
+        os.startfile(path)
+
+    def on_row_selected(self, sender: QObject, path: Path):
         tokens = path.parts
         if isinstance(sender, AssetsView):
             self.browser.tasks_view.set_rows(

@@ -13,7 +13,8 @@ from sbtw.ui.view import View
 
 
 class Browser(QWidget):
-    row_clicked = Signal(QObject, Path)
+    row_selected = Signal(QObject, Path)
+    row_clicked = Signal(Path)
 
     def __init__(self, data: dict, parent: QWidget | None = None):
         super().__init__(parent)
@@ -57,11 +58,15 @@ class Browser(QWidget):
         # ---------- Connections ----------
         self.assets_view.row_selected.connect(self.on_row_selected)
         self.tasks_view.row_selected.connect(self.on_row_selected)
-        self.files_view.row_selected.connect(self.on_row_selected)
+        self.files_view.row_clicked.connect(self.on_row_clicked)
 
     def on_row_selected(self, data: dict):
         if isinstance(self.sender(), View):
-            self.row_clicked.emit(self.sender(), data.get("path"))
+            self.row_selected.emit(self.sender(), data.get("path"))
+
+    def on_row_clicked(self, data: dict):
+        if isinstance(self.sender(), View):
+            self.row_clicked.emit(data.get("path"))
 
 
 if __name__ == "__main__":

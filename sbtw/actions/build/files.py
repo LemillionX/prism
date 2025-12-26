@@ -21,4 +21,3 @@ class Increment(ActionBase):
 
         logger.info("Creating file %s", file.as_posix())
         shutil.copy2(path, file)
-
