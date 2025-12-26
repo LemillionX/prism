@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from qtpy.QtWidgets import QWidget
+from qtpy.QtWidgets import QTreeWidgetItem, QWidget
 
 from sbtw.ui.view import View
 
@@ -18,6 +18,9 @@ class FilesView(View):
         if task := kwargs.get("key"):
             return task == "FilesBase" or super().is_action_valid(**kwargs)
         return super().is_action_valid(**kwargs)
+
+    def on_item_clicked(self, item: QTreeWidgetItem):
+        pass
 
 
 if __name__ == "__main__":

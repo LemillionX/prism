@@ -58,6 +58,7 @@ class Browser(QWidget):
         # ---------- Connections ----------
         self.assets_view.row_selected.connect(self.on_row_selected)
         self.tasks_view.row_selected.connect(self.on_row_selected)
+        self.files_view.row_selected.connect(self.on_row_selected)
         self.files_view.row_clicked.connect(self.on_row_clicked)
 
     def on_row_selected(self, data: dict):
