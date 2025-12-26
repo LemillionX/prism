@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtGui import QMouseEvent, QPixmap
 from qtpy.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from sbtw.core.constant import REFRESH_ICON, USER_THUMBNAIL
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class Label(QWidget):

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
-from qtpy.QtCore import QObject
 from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
 from sbtw.core.log import logger
@@ -13,6 +13,9 @@ from sbtw.ui.browser import Browser
 from sbtw.ui.files import FilesView
 from sbtw.ui.header import Header
 from sbtw.ui.tasks import TasksView
+
+if TYPE_CHECKING:
+    from qtpy.QtCore import QObject
 
 
 class MainWindow(QMainWindow):

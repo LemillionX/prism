@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import partial
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from qtpy.QtCore import QEvent, QObject, QRect, QSize, Qt, Signal
 from qtpy.QtGui import QMouseEvent, QPixmap
@@ -10,6 +10,9 @@ from qtpy.QtWidgets import QGridLayout, QLabel, QVBoxLayout, QWidget
 from sbtw.core.constant import BROWSER_EXPLORER_ICON, PLUS_ICON, PROJECTS_THUMBNAIL
 from sbtw.core.log import logger
 from sbtw.ui.label import Label
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def scale_and_crop_center(pixmap: QPixmap, target_size: QSize) -> QPixmap:
@@ -91,11 +94,13 @@ class ProjectsGrid(QWidget):
         self.hide()
 
     def eventFilter(self, watched: QObject, event: QEvent):
-        # If there is a click
-        if event.type() == QEvent.MouseButtonPress and isinstance(event, QMouseEvent):
-            # Check if click is outside this widget
-            if not self.geometry().contains(event.globalPos()):
-                self.hide()
+        # If there is a click inside the widget
+        if (
+            event.type() == QEvent.MouseButtonPress
+            and isinstance(event, QMouseEvent)
+            and not self.geometry().contains(event.globalPos())
+        ):
+            self.hide()
 
         return super().eventFilter(watched, event)
 

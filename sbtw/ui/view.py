@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from qtpy.QtCore import QObject, QPoint, Qt, Signal
 from qtpy.QtWidgets import (
@@ -138,7 +138,7 @@ class View(QWidget):
         # Show menu at the global position
         menu.exec(self.tree.viewport().mapToGlobal(pos))
 
-    def is_action_valid(self, **kwargs):
+    def is_action_valid(self, **kwargs: Any):
         return kwargs.get("key") == "Base"
 
     def add_actions(

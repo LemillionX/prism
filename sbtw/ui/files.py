@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from qtpy.QtWidgets import QTreeWidgetItem, QWidget
 
 from sbtw.ui.view import View
@@ -14,7 +16,7 @@ class FilesView(View):
     ):
         super().__init__(rows=rows, actions=actions, parent=parent)
 
-    def is_action_valid(self, **kwargs):
+    def is_action_valid(self, **kwargs: Any):
         if task := kwargs.get("key"):
             return task == "FilesBase" or super().is_action_valid(**kwargs)
         return super().is_action_valid(**kwargs)

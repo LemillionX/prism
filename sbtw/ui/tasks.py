@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from qtpy.QtWidgets import QWidget
 
 from sbtw.ui.row import Row
@@ -15,7 +17,7 @@ class TasksView(View):
     ):
         super().__init__(rows=rows, actions=actions, parent=parent)
 
-    def is_action_valid(self, **kwargs):
+    def is_action_valid(self, **kwargs: Any):
         if task := kwargs.get("key"):
             row = kwargs.get("row")
             name = row.data.get("name") if isinstance(row, Row) else "TasksView"

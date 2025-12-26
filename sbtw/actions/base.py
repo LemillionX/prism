@@ -9,22 +9,23 @@ from sbtw.ui.view import View
 
 class ActionBase(metaclass=ABCMeta):
     @staticmethod
+    @abstractmethod
     def name() -> str:
         pass
 
-    def pre_run(self, **kwargs):
+    def pre_run(self, **kwargs: Any):  # noqa: ARG002
         logger.debug("%s has no pre-run", self)
 
-    def post_run(self, **kwargs):
+    def post_run(self, **kwargs: Any):
         if (view := (kwargs.get("view"))) and isinstance(view, View):
             view.row_selected.emit(kwargs)
 
     @abstractmethod
-    def _execute(self, **kwargs: Any):
+    def _execute(self, **kwargs: Any) -> None:
         pass
 
     @classmethod
-    def execute(cls, **kwargs):
+    def execute(cls, **kwargs: Any) -> None:
         self = cls()
         logger.info("Executing '%s' action", cls.name())
         failed = None
@@ -37,7 +38,7 @@ class ActionBase(metaclass=ABCMeta):
 
         try:
             self._execute(**kwargs)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.exception("%s: execution has failed", cls.name())
             failed = e
         finally:
@@ -62,6 +63,6 @@ class OpenInExplorer(ActionBase):
     def name() -> str:
         return "Open In Explorer"
 
-    def _execute(self, **kwargs):
+    def _execute(self, **kwargs: Any) -> None:
         path = Path(kwargs.get("path"))
         os.startfile(path.parent)

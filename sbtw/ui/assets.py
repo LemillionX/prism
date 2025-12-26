@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from qtpy.QtWidgets import QLineEdit, QTreeWidgetItem, QWidget
 
-from sbtw.ui.row import Row
 from sbtw.ui.view import View
+
+if TYPE_CHECKING:
+    from sbtw.ui.row import Row
 
 
 class AssetsView(View):
@@ -25,7 +29,7 @@ class AssetsView(View):
         # ---------- Connections ----------
         self.search_bar.textChanged.connect(self._filter_items)
 
-    def _filter_items(self, text: str):
+    def _filter_items(self, text: str) -> None:
         text = text.lower()
 
         for i in range(self.tree.topLevelItemCount()):
