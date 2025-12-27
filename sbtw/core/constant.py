@@ -1,4 +1,5 @@
 import os
+from enum import Enum
 from pathlib import Path
 
 # -------------------- Medias --------------------
@@ -15,3 +16,11 @@ APPDATA = Path(os.getenv("APPDATA"), "sbtw")
 APPDATA.mkdir(parents=True, exist_ok=True)
 CONFIG = APPDATA / "config.json"
 CONFIG.touch(exist_ok=True)
+
+
+# -------------------- Status --------------------
+class Status(str, Enum):
+    WTG = "Waiting to Start"
+    HLD = "On Hold"
+    WIP = "Work In Progress"
+    OK = "Approved"

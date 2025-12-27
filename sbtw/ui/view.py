@@ -5,16 +5,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from qtpy.QtCore import QObject, QPoint, Qt, Signal
-from qtpy.QtWidgets import (
-    QAction,
-    QMenu,
-    QSizePolicy,
-    QTreeWidget,
-    QTreeWidgetItem,
-    QVBoxLayout,
-    QWidget,
-)
+from qtpy.QtWidgets import QAction, QMenu, QSizePolicy, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget
 
+from sbtw.actions.base import MenuBase
 from sbtw.ui.row import Row
 
 if TYPE_CHECKING:
@@ -50,9 +43,7 @@ class View(QWidget):
         self.tree.setHeaderHidden(True)
         self.tree.setIndentation(16)
         self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.tree.customContextMenuRequested.connect(
-            partial(self.show_context_menu, actions or {})
-        )
+        self.tree.customContextMenuRequested.connect(partial(self.show_context_menu, actions or {}))
         self.tree.setSizePolicy(
             QSizePolicy.Policy.Expanding,
             QSizePolicy.Policy.Expanding,
@@ -144,14 +135,18 @@ class View(QWidget):
     def add_actions(
         self,
         menu: QMenu,
-        actions: list,
+        actions: dict,
         row: Row | None = None,
         entity: dict | None = None,
     ):
         for key, _actions in actions.items():
             for action in _actions:
                 if self.is_action_valid(action=action, row=row, key=key):
-                    self.add_action(menu, action, row, entity)
+                    if isinstance(action, MenuBase):
+                        submenu = menu.addMenu(action.name())
+                        self.add_actions(submenu, {key: action.actions}, row, entity)
+                    else:
+                        self.add_action(menu, action, row, entity)
 
     def add_action(
         self,

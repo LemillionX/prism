@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Any
 
 from sbtw.core.log import logger
-from sbtw.ui.view import View
 
 
 class ActionBase(metaclass=ABCMeta):
@@ -17,39 +16,47 @@ class ActionBase(metaclass=ABCMeta):
         logger.debug("%s has no pre-run", self)
 
     def post_run(self, **kwargs: Any):
-        if (view := (kwargs.get("view"))) and isinstance(view, View):
+        if view := (kwargs.get("view")):
             view.row_selected.emit(kwargs)
 
     @abstractmethod
     def _execute(self, **kwargs: Any) -> None:
         pass
 
-    @classmethod
-    def execute(cls, **kwargs: Any) -> None:
-        self = cls()
-        logger.info("Executing '%s' action", cls.name())
+    def execute(self, **kwargs: Any) -> None:
+        logger.info("Executing '%s' action", self.name())
         failed = None
 
         try:
             self.pre_run(**kwargs)
         except Exception:
-            logger.exception("%s: pre-run has failed", cls.name())
+            logger.exception("%s: pre-run has failed", self.name())
             raise
 
         try:
             self._execute(**kwargs)
         except Exception as e:  # noqa: BLE001
-            logger.exception("%s: execution has failed", cls.name())
+            logger.exception("%s: execution has failed", self.name())
             failed = e
         finally:
             try:
                 self.post_run(**kwargs)
             except Exception:
-                logger.exception("%s: post-run has failed", cls.name())
+                logger.exception("%s: post-run has failed", self.name())
                 raise
 
         if failed:
             raise failed
+
+
+class MenuBase(ActionBase):
+    def __init__(self, actions: list[ActionBase]):
+        super().__init__()
+        self.actions = actions
+
+    @staticmethod
+    def name() -> str:
+        return "Menu"
 
 
 class BuildBase(ActionBase):

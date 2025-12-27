@@ -15,15 +15,13 @@ class TasksView(View):
         actions: dict | None = None,
         parent: QWidget | None = None,
     ):
-        super().__init__(rows=rows, actions=actions, parent=parent)
+        super().__init__(rows=rows, keys=["status"], actions=actions, parent=parent)
 
     def is_action_valid(self, **kwargs: Any):
         if task := kwargs.get("key"):
             row = kwargs.get("row")
             name = row.data.get("name") if isinstance(row, Row) else "TasksView"
-            return task == name or (
-                name != "TasksView" and super().is_action_valid(**kwargs)
-            )
+            return task in {name, "TasksBase"} or (name != "TasksView" and super().is_action_valid(**kwargs))
         return super().is_action_valid(**kwargs)
 
 

@@ -4,7 +4,7 @@ import json
 from enum import Enum
 from pathlib import Path
 
-from sbtw.core.constant import CONFIG, DEFAULT_THUMBNAIL
+from sbtw.core.constant import CONFIG, DEFAULT_THUMBNAIL, Status
 from sbtw.core.log import logger
 
 
@@ -59,36 +59,33 @@ class Project:
                 "type": entity_type.name,
                 "path": asset,
                 "thumbnail": thumbnail
-                if (thumbnail := self.meta / asset.relative_to(self.root))
-                and thumbnail.exists()
+                if (thumbnail := self.meta / asset.relative_to(self.root)) and thumbnail.exists()
                 else DEFAULT_THUMBNAIL,
             }
             for asset in (self.root / entity_type.value).glob("*")
         ]
 
-    def get_tasks(
-        self, entity: str, entity_type: EntityType = EntityType.Asset
-    ) -> list[dict]:
-        return [
-            {"name": task.stem, "path": task}
-            for task in (self.root / entity_type.value / entity).glob("*")
-        ]
+    def get_tasks(self, entity: str, entity_type: EntityType = EntityType.Asset) -> list[dict]:
+        tasks = []
+        for task in (self.root / entity_type.value / entity).glob("*"):
+            data = {"name": task.stem, "path": task}
+            with (task / ".status").open(mode="r", encoding="utf8") as f:
+                data["status"] = Status[json.load(f).get("status", "WTG")].name
+            tasks.append(data)
 
-    def get_files(
-        self, task: str, entity: str, entity_type: EntityType = EntityType.Asset
-    ) -> list[dict]:
+        return tasks
+
+    def get_files(self, task: str, entity: str, entity_type: EntityType = EntityType.Asset) -> list[dict]:
         return [
             {
                 "name": file.name,
                 "path": file,
                 "thumbnail": thumbnail
-                if (thumbnail := self.meta / file.relative_to(self.root))
-                and thumbnail.exists()
+                if (thumbnail := self.meta / file.relative_to(self.root)) and thumbnail.exists()
                 else DEFAULT_THUMBNAIL,
             }
-            for file in sorted(
-                (self.root / entity_type.value / entity / task).glob("*"), reverse=True
-            )
+            for file in sorted((self.root / entity_type.value / entity / task).glob("*"), reverse=True)
+            if not file.stem.startswith(".")
         ]
 
 
