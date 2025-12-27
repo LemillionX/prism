@@ -21,6 +21,7 @@ CONFIG.touch(exist_ok=True)
 # -------------------- Status --------------------
 class Status(str, Enum):
     WTG = "Waiting to Start"
+    RTK = "Retake"
     HLD = "On Hold"
     WIP = "Work In Progress"
     OK = "Approved"
