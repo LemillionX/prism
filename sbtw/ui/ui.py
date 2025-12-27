@@ -36,9 +36,7 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout(widget)
 
         # ------------- Header -------------
-        header = Header(
-            name="Larsene", projects=self.manager.get_projects(), parent=self
-        )
+        header = Header(name="Larsene", projects=self.manager.get_projects(), parent=self)
         main_layout.addWidget(header, stretch=1)
 
         # ------------- Browser -------------
@@ -50,6 +48,7 @@ class MainWindow(QMainWindow):
         header.projects_grid.project_opened.connect(self.on_project_opened)
         self.browser.row_selected.connect(self.on_row_selected)
         self.browser.row_clicked.connect(self.on_row_clicked)
+        self.browser.assets_view.updated.connect(self.on_view_updated)
         self.browser.tasks_view.updated.connect(self.on_view_updated)
 
     def on_project_opened(self):
@@ -76,9 +75,7 @@ class MainWindow(QMainWindow):
         tokens = path.parts
         if isinstance(sender, AssetsView):
             self.browser.tasks_view.set_rows(
-                rows=self.manager.project.get_tasks(
-                    entity=tokens[-1], entity_type=EntityType(tokens[-2])
-                ),
+                rows=self.manager.project.get_tasks(entity=tokens[-1], entity_type=EntityType(tokens[-2])),
                 entity={"name": tokens[-1], "path": path},
             )
             self.browser.files_view.clear_tree()
@@ -105,6 +102,9 @@ class MainWindow(QMainWindow):
 
     def on_view_updated(self, sender: QObject, path: Path):
         tokens = path.parts
+
+        if isinstance(sender, AssetsView):
+            self.on_project_clicked(tokens[-1])
 
         if isinstance(sender, TasksView):
             self.browser.tasks_view.set_rows(

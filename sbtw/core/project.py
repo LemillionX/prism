@@ -68,10 +68,11 @@ class Project:
     def get_tasks(self, entity: str, entity_type: EntityType = EntityType.Asset) -> list[dict]:
         tasks = []
         for task in (self.root / entity_type.value / entity).glob("*"):
-            data = {"name": task.stem, "path": task}
-            with (task / ".status").open(mode="r", encoding="utf8") as f:
-                data["status"] = Status[json.load(f).get("status", "WTG")].name
-            tasks.append(data)
+            if not task.stem.startswith("."):
+                data = {"name": task.stem, "path": task}
+                with (task / ".status").open(mode="r", encoding="utf8") as f:
+                    data["status"] = Status[json.load(f).get("status", "WTG")].name
+                tasks.append(data)
 
         return tasks
 

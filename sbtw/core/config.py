@@ -1,10 +1,12 @@
 from sbtw.actions.base import OpenInExplorer
+from sbtw.actions.build.assets import AddAsset
 from sbtw.actions.build.files import Increment
 from sbtw.actions.build.tasks import AddTask, BuildScene, EditStatus, SetStatus
 from sbtw.core.constant import Status
 
 ACTIONS = {
     "Base": [OpenInExplorer()],
+    "AssetsView": [AddAsset()],
     "FilesBase": [Increment()],
     "TasksBase": [EditStatus(actions=[SetStatus(status) for status in Status])],
     "TasksView": [AddTask()],
