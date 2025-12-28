@@ -15,6 +15,8 @@ from sbtw.ui.header import Header
 from sbtw.ui.tasks import TasksView
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from qtpy.QtCore import QObject
 
 
@@ -118,41 +120,10 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     import sys
-    from pathlib import Path
 
     from qtpy.QtWidgets import QApplication
 
-    from sbtw.core.constant import PROJECTS_THUMBNAIL
-
     app = QApplication(sys.argv)
-    _data = [
-        {
-            "name": f"MyProject{i:02d}",
-            "thumbnail": PROJECTS_THUMBNAIL,
-            "data": [
-                {
-                    "name": f"Clementine{j:02d}",
-                    "thumbnail": r"E:\Sammy\Clem.png",
-                    "project": "Test",
-                    "tasks": [
-                        {
-                            "name": task,
-                            "path": Path(f"Clementine{j:02d}", task).as_posix(),
-                            "files": [
-                                {
-                                    "name": f"Clementine{j:02d}_{task}_v{k:03d}",
-                                }
-                                for k in range(32, 0, -1)
-                            ],
-                        }
-                        for task in ["Design", "Modeling", "Texture", "Rig"]
-                    ],
-                }
-                for j in range(20)
-            ],
-        }
-        for i in range(10)
-    ]
     ui = MainWindow()
     ui.show()
 
