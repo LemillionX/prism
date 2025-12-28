@@ -23,7 +23,7 @@ class ProjectManager:
         try:
             with CONFIG.open(mode="r", encoding="utf8") as config:
                 data = json.load(config)
-        except json.decoder.JSONDecodeError:
+        except (json.decoder.JSONDecodeError, FileNotFoundError):
             logger.warning("Config file %s does not exist. Creating it...", CONFIG.as_posix())
             data = {"username": getpass.getuser(), "projects": {}}
             with CONFIG.open(mode="w", encoding="utf8") as f:

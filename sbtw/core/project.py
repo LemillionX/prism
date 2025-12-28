@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import getpass
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -20,9 +21,12 @@ class Project:
     def __init__(self, name: str | None = None, root: Path | str | None = None, path: Path | None = None):
         if path:
             self.get_project(path)
-        else:
+        elif name and root:
             self.name = name
             self.set_root(root)
+        else:
+            self.name = None
+            self.root = Path()
 
     def set_root(self, root: Path):
         self.root = Path(root)
@@ -84,28 +88,32 @@ class Project:
     def get_tasks(self, entity: str, entity_type: EntityType = EntityType.Asset) -> list[dict]:
         tasks = []
         for task in (self.root / entity_type.value / entity).glob("*"):
+            metadata = self.get_task_metadata(task)
             data = {"name": task.stem, "path": task}
-            meta = get_meta_path(task)
-            meta.mkdir(parents=True, exist_ok=True)
-            with (get_meta_path(task) / METADATA).open(mode="r", encoding="utf8") as f:
-                data["status"] = Status[json.load(f).get("status", "WTG")].name
+            data.update(metadata)
+            data["status"] = Status[metadata.get("status", "WTG")].name
             tasks.append(data)
 
         return tasks
 
     def get_files(self, task: str, entity: str, entity_type: EntityType = EntityType.Asset) -> list[dict]:
-        return [
-            {
+        files = []
+        for file in sorted((self.root / entity_type.value / entity / task).glob("*"), reverse=True):
+            data = {
                 "name": file.name,
                 "path": file,
-                "thumbnail": self.get_thumbnail(file),
                 "author": None,
-                "status": Status.WTG.name,
+                "status": None,
+                "thumbnail": self.get_thumbnail(file),
                 "date": datetime.fromtimestamp(file.stat().st_mtime, tz=timezone.utc).strftime("%Y-%m-%d %H:%M"),
                 "size": format_size(file.stat().st_size),
             }
-            for file in sorted((self.root / entity_type.value / entity / task).glob("*"), reverse=True)
-        ]
+            metadata = self.get_file_metadata(file)
+            data["status"] = Status[metadata.get("status", "WTG")].name
+            data["author"] = metadata.get("author", "Unknown Author")
+            files.append(data)
+
+        return files
 
     def get_thumbnail_path(self, element: Path):
         thumbnail = self.meta / element.relative_to(self.root)
@@ -128,6 +136,64 @@ class Project:
         )
         self.name = root.stem
         self.set_root(root)
+
+    def get_task_metadata(self, task: Path) -> dict:
+        meta = get_meta_path(task)
+        meta.mkdir(parents=True, exist_ok=True)
+        try:
+            with (meta / METADATA).open(mode="r", encoding="utf8") as f:
+                metadata = json.load(f)
+        except (json.decoder.JSONDecodeError, FileNotFoundError):
+            logger.warning("Metadata for %s do not exist. Creating them...", meta.as_posix())
+            metadata = {"name": task.stem, "entity": task.parent.stem}
+            with (meta / METADATA).open(mode="w", encoding="utf8") as f:
+                json.dump(metadata, f, indent=4)
+
+        return metadata
+
+    def get_file_metadata(self, file: Path) -> dict:
+        meta = get_meta_path(file).with_suffix(METADATA)
+        meta.parent.mkdir(parents=True, exist_ok=True)
+        meta.touch(exist_ok=True)
+        try:
+            with meta.open(mode="r", encoding="utf8") as f:
+                metadata = json.load(f)
+        except (json.decoder.JSONDecodeError, FileNotFoundError):
+            logger.warning("Metadata for %s do not exist. Creating them...", file.as_posix())
+            metadata = {"username": getpass.getuser(), "status": Status.WTG.name}
+            with meta.open(mode="w", encoding="utf8") as f:
+                json.dump(metadata, f, indent=4)
+
+        return metadata
+
+    def set_task_metadata(self, task: Path, **kwargs: Any):
+        # -------------------- Get project --------------------
+        self.get_project(task)
+        meta = get_meta_path(task) / METADATA
+
+        # -------------------- Load metadata --------------------
+        metadata = self.get_task_metadata(task)
+
+        # -------------------- Save metadata --------------------
+        for k, v in kwargs.items():
+            metadata[k] = v
+        with meta.open(mode="w", encoding="utf8") as f:
+            json.dump(metadata, f, indent=4)
+
+    def set_file_metadata(self, file: Path, **kwargs: Any):
+        # -------------------- Get project --------------------
+        self.get_project(file)
+        meta = get_meta_path(file).with_suffix(METADATA)
+        meta.parent.mkdir(parents=True, exist_ok=True)
+
+        # -------------------- Load metadata --------------------
+        metadata = self.get_file_metadata(file)
+
+        # -------------------- Save metadata --------------------
+        for k, v in kwargs.items():
+            metadata[k] = v
+        with meta.open(mode="w", encoding="utf8") as f:
+            json.dump(metadata, f, indent=4)
 
 
 if __name__ == "__main__":

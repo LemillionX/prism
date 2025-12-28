@@ -5,7 +5,7 @@ from typing import Any
 from sbtw.actions.base import ActionBase, AddEntityBase, BuildBase, MenuBase
 from sbtw.core.constant import METADATA, Status
 from sbtw.core.log import logger
-from sbtw.core.project import get_meta_path
+from sbtw.core.project import Project, get_meta_path
 
 
 class AddTask(AddEntityBase):
@@ -42,14 +42,8 @@ class SetStatus(ActionBase):
 
     def _execute(self, **kwargs: Any) -> None:
         if path := Path(kwargs.get("path")):
-            meta = get_meta_path(path)
-            meta.mkdir(parents=True, exist_ok=True)
-            task = meta / METADATA
-            with task.open(mode="r", encoding="utf8") as f:
-                data = json.load(f)
-            data["status"] = self.status.name
-            with task.open(mode="w", encoding="utf8") as f:
-                json.dump(data, f, indent=4)
+            project = Project()
+            project.set_task_metadata(path, status=self.status.name)
 
     def post_run(self, **kwargs: Any):
         if (view := (kwargs.get("view"))) and hasattr(view, "updated"):

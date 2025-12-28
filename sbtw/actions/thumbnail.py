@@ -199,7 +199,7 @@ class ScreenshotOverlay(QWidget):
 class CaptureThumbnail(SetThumbnail):
     @staticmethod
     def name() -> str:
-        return "CaptureThumbnail"
+        return "Capture Thumbnail"
 
     def get_thumbnail(self) -> Path | None:
         tmp = tempfile.NamedTemporaryFile(suffix=".png", delete=False)  # noqa: SIM115

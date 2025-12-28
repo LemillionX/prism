@@ -90,7 +90,7 @@ class MainWindow(QMainWindow):
         if isinstance(sender, AssetsView):
             self.browser.tasks_view.set_rows(
                 rows=self.manager.project.get_tasks(entity=tokens[-1], entity_type=EntityType(tokens[-2])),
-                entity={"name": tokens[-1], "path": path},
+                entity={"name": tokens[-1], "path": path, "username": self.header.name},
             )
             self.browser.files_view.clear_tree()
 
@@ -101,7 +101,7 @@ class MainWindow(QMainWindow):
                     entity=tokens[-2],
                     entity_type=EntityType(tokens[-3]),
                 ),
-                entity={"name": tokens[-1], "path": path},
+                entity={"name": tokens[-1], "path": path, "username": self.header.name},
             )
 
         if isinstance(sender, FilesView):
@@ -111,7 +111,7 @@ class MainWindow(QMainWindow):
                     entity=tokens[-3],
                     entity_type=EntityType(tokens[-4]),
                 ),
-                entity={"name": tokens[-2], "path": path.parent},
+                entity={"name": tokens[-2], "path": path.parent, "username": self.header.name},
             )
 
     def on_view_updated(self, sender: QObject, path: Path):
@@ -125,7 +125,7 @@ class MainWindow(QMainWindow):
                     entity=tokens[-1],
                     entity_type=EntityType(tokens[-2]),
                 ),
-                entity={"name": tokens[-1], "path": path},
+                entity={"name": tokens[-1], "path": path, "username": self.header.name},
             )
 
         if isinstance(sender, FilesView):
@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
                     entity=tokens[-3],
                     entity_type=EntityType(tokens[-4]),
                 ),
-                entity={"name": tokens[-2], "path": path.parent},
+                entity={"name": tokens[-2], "path": path.parent, "username": self.header.name},
             )
 
 

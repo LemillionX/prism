@@ -53,6 +53,8 @@ class Label(QWidget):
 
 
 class UserLabel(Label):
+    text_updated = Signal(str)
+
     def __init__(self, name: str, parent: QWidget | None = None):
         super().__init__(text=name, icon=USER_THUMBNAIL, parent=parent)
         self.clicked.connect(self.set_name)
@@ -63,6 +65,7 @@ class UserLabel(Label):
             manager = ProjectManager()
             manager.save_config(username=name)
             self.label.setText(name)
+            self.text_updated.emit(name)
 
 
 class RefreshLabel(Label):

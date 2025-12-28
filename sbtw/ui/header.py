@@ -23,6 +23,7 @@ class Header(QWidget):
         # ------------- User -------------
         main_layout.addStretch()
         user_label = UserLabel(name=self.name, parent=self)
+        user_label.text_updated.connect(self.set_name)
         main_layout.addWidget(user_label, alignment=Qt.AlignmentFlag.AlignRight)
         # ------------- Projects -------------
         self.projects_label = ProjectsLabel(parent=self)
@@ -32,6 +33,9 @@ class Header(QWidget):
         # ------------- Refresh -------------
         refresh_icon = RefreshLabel()
         main_layout.addWidget(refresh_icon, alignment=Qt.AlignmentFlag.AlignRight)
+
+    def set_name(self, name: str):
+        self.name = name
 
     def toggle_projects_grid(self):
         if self.projects_view.isVisible():

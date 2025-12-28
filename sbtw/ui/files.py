@@ -9,6 +9,7 @@ from qtpy.QtWidgets import QTreeWidgetItem, QWidget
 
 from sbtw.actions.utils import get_last_version, get_next_version
 from sbtw.core.log import logger
+from sbtw.core.project import Project
 from sbtw.ui.view import View
 
 if TYPE_CHECKING:
@@ -58,13 +59,20 @@ class FilesView(View):
         file = Path(
             self.entity.get("path"), f"{self.entity.get('path').parent.stem}_{self.entity.get('path').stem}_v000"
         )
+        project = Project()
         for path in paths:
+            # -------------------- Get conformed filename --------------------
             file.with_suffix(path.suffix).touch(exist_ok=True)
             last_version = get_last_version(file.with_suffix(path.suffix))
             new_path = get_next_version(last_version)
             file.with_suffix(path.suffix).unlink(missing_ok=True)
+
+            # -------------------- Copying file --------------------
             logger.info("Creating %s from  %s ", new_path.as_posix(), path.as_posix())
             shutil.copy2(path, new_path)
+
+            # -------------------- Set metadata --------------------
+            project.set_file_metadata(new_path, author=self.entity.get("username"))
 
         if paths:
             self.row_selected.emit({"path": file})
