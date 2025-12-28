@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import getpass
 import json
 from pathlib import Path
+from typing import Any
 
 from sbtw.core.constant import CONFIG
 from sbtw.core.log import logger
@@ -17,22 +19,40 @@ class ProjectManager:
         self.project.create()
         self.project.save()
 
-    def get_projects(self, to_dict: bool = False) -> list[dict] | dict:
+    def get_config(self) -> dict:
         try:
             with CONFIG.open(mode="r", encoding="utf8") as config:
                 data = json.load(config)
         except json.decoder.JSONDecodeError:
-            logger.warning("No project in  %s...", CONFIG.as_posix())
-            data = {}
+            logger.warning("Config file %s does not exist. Creating it...", CONFIG.as_posix())
+            data = {"username": getpass.getuser(), "projects": {}}
+            with CONFIG.open(mode="w", encoding="utf8") as f:
+                json.dump(data, f, indent=4)
 
+        return data
+
+    def save_config(self, **kwargs: Any) -> None:
+        config = self.get_config()
+        for k, v in kwargs.items():
+            config[k] = v
+
+        with CONFIG.open(mode="w", encoding="utf8") as f:
+            json.dump(config, f, indent=4)
+
+        logger.info("Configuration saved !")
+
+    def get_projects(self, to_dict: bool = False) -> list[dict] | dict:
+        data = self.get_config()
         if to_dict:
-            return data
+            return data.get("projects", {})
 
-        return data.values()
+        return data.get("projects", {}).values()
 
     def set_projects(self, data: dict) -> None:
-        with CONFIG.open(mode="w", encoding="utf8") as config:
-            json.dump(data, config, indent=4)
+        config = self.get_config()
+        config["projects"] = data
+        with CONFIG.open(mode="w", encoding="utf8") as f:
+            json.dump(config, f, indent=4)
 
     def set_project(self, project: str):
         data = self.get_projects(to_dict=True)
@@ -55,4 +75,5 @@ if __name__ == "__main__":
     _manager = ProjectManager()
     for _project in ["Toto", "Test", "SampleProject"]:
         _manager.set_project(project=_project)
+        logger.info("Current project is %s", _manager.project.name)
         logger.info("Current project is %s", _manager.project.name)

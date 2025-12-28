@@ -54,6 +54,15 @@ def get_path_before_keyword(path: Path, keywords: list[str]) -> Path:
     return path
 
 
+def format_size(size: int) -> str:
+    modulo = 1024
+    for unit in ("B", "KB", "MB", "GB", "TB"):
+        if size < modulo:
+            return f"{size:.1f} {unit}"
+        size /= modulo
+    return "PB"
+
+
 if __name__ == "__main__":
     from sbtw.core.log import logger
 

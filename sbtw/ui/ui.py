@@ -30,6 +30,7 @@ class MainWindow(QMainWindow):
 
         # ------------- Variables -------------
         self.manager = manager or ProjectManager()
+        config = self.manager.get_config()
 
         # ------------- Layout -------------
         widget = QWidget(self)
@@ -38,7 +39,7 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout(widget)
 
         # ------------- Header -------------
-        self.header = Header(name="Larsene", projects=self.manager.get_projects(), parent=self)
+        self.header = Header(name=config.get("username"), projects=self.manager.get_projects(), parent=self)
         main_layout.addWidget(self.header, stretch=1)
 
         # ------------- Browser -------------

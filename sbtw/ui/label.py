@@ -4,9 +4,10 @@ from typing import TYPE_CHECKING
 
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtGui import QMouseEvent, QPixmap
-from qtpy.QtWidgets import QHBoxLayout, QLabel, QWidget
+from qtpy.QtWidgets import QHBoxLayout, QInputDialog, QLabel, QWidget
 
 from sbtw.core.constant import REFRESH_ICON, USER_THUMBNAIL
+from sbtw.core.manager import ProjectManager
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -54,6 +55,14 @@ class Label(QWidget):
 class UserLabel(Label):
     def __init__(self, name: str, parent: QWidget | None = None):
         super().__init__(text=name, icon=USER_THUMBNAIL, parent=parent)
+        self.clicked.connect(self.set_name)
+
+    def set_name(self):
+        name, ok = QInputDialog.getText(None, "Change Username", "Username:", text=self.label.text())
+        if ok:
+            manager = ProjectManager()
+            manager.save_config(username=name)
+            self.label.setText(name)
 
 
 class RefreshLabel(Label):

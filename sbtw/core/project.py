@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from sbtw.actions.utils import get_path_before_keyword
+from sbtw.actions.utils import format_size, get_path_before_keyword
 from sbtw.core.constant import CONFIG, DEFAULT_THUMBNAIL, METADATA, EntityType, Status
 from sbtw.core.log import logger
 
@@ -45,12 +46,12 @@ class Project:
                 "Config file  %s seems to be empty. Initializing it...",
                 CONFIG.as_posix(),
             )
-            data = {}
+            data = {"projects": {}}
 
         # -------------------- Save project data --------------------
-        data[self.name] = self.to_dict()
+        data["projects"][self.name] = self.to_dict()
         for k, v in kwargs.items():
-            data[self.name][k] = v
+            data["projects"][self.name][k] = v
 
         with CONFIG.open(mode="w", encoding="utf8") as config:
             json.dump(data, config, indent=4)
@@ -98,6 +99,10 @@ class Project:
                 "name": file.name,
                 "path": file,
                 "thumbnail": self.get_thumbnail(file),
+                "author": None,
+                "status": Status.WTG.name,
+                "date": datetime.fromtimestamp(file.stat().st_mtime, tz=timezone.utc).strftime("%Y-%m-%d %H:%M"),
+                "size": format_size(file.stat().st_size),
             }
             for file in sorted((self.root / entity_type.value / entity / task).glob("*"), reverse=True)
         ]
