@@ -97,6 +97,7 @@ class ProjectsView(QWidget):
             )
             project_label.clicked.connect(partial(self.on_project_clicked, project))
             project_label.removed.connect(self.project_removed.emit)
+            project_label.updated.connect(project_label.on_project_updated)
             self.main_layout.addWidget(project_label, row, col)
 
         self.set_actions(projects=projects, cols=cols)
@@ -228,6 +229,9 @@ class ProjectView(Base):
         if event.button() == Qt.LeftButton:
             self.clicked.emit()
         super().mousePressEvent(event)
+
+    def on_project_updated(self, obj: QObject, path: Path):  # noqa: ARG002
+        self.clicked.emit()
 
 
 class ProjectForm(QDialog):

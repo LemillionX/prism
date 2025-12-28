@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from sbtw.actions.utils import get_path_before_keyword
 from sbtw.core.constant import CONFIG, DEFAULT_THUMBNAIL, METADATA, EntityType, Status
@@ -15,9 +16,12 @@ def get_meta_path(path: Path) -> Path:
 
 
 class Project:
-    def __init__(self, name: str, root: Path | str):
-        self.name = name
-        self.set_root(root)
+    def __init__(self, name: str | None = None, root: Path | str | None = None, path: Path | None = None):
+        if path:
+            self.get_project(path)
+        else:
+            self.name = name
+            self.set_root(root)
 
     def set_root(self, root: Path):
         self.root = Path(root)
@@ -30,7 +34,7 @@ class Project:
                 data[path] = data[path].as_posix()
         return data
 
-    def save(self):
+    def save(self, **kwargs: Any):
         logger.info("Saving project %s ...", self.name)
         # -------------------- Load projects data --------------------
         try:
@@ -45,6 +49,9 @@ class Project:
 
         # -------------------- Save project data --------------------
         data[self.name] = self.to_dict()
+        for k, v in kwargs.items():
+            data[self.name][k] = v
+
         with CONFIG.open(mode="w", encoding="utf8") as config:
             json.dump(data, config, indent=4)
         logger.info("Project %s saved !", self.name)
@@ -120,5 +127,6 @@ class Project:
 
 if __name__ == "__main__":
     _project = Project(name="Test", root=r"E:\Sammy\Projects\Test")
+    logger.info(_project.get_entities(entity_type=EntityType.Asset))
     logger.info(_project.get_entities(entity_type=EntityType.Asset))
     logger.info(_project.get_entities(entity_type=EntityType.Asset))

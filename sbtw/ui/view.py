@@ -15,6 +15,8 @@ if TYPE_CHECKING:
 
 
 class Base(QWidget):
+    updated = Signal(QObject, Path)
+
     def __init__(self, actions: dict | None = None, parent: QWidget | None = None):
         super().__init__(parent)
         self.action_base = self.__class__.__name__.replace("View", "Base")
@@ -57,7 +59,6 @@ class Base(QWidget):
 class View(Base):
     row_selected = Signal(dict)
     row_clicked = Signal(dict)
-    updated = Signal(QObject, Path)
 
     def __init__(
         self,

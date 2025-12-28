@@ -114,7 +114,6 @@ class MainWindow(QMainWindow):
 
     def on_view_updated(self, sender: QObject, path: Path):
         tokens = path.parts
-
         if isinstance(sender, AssetsView):
             self.on_project_clicked(tokens[-1])
 

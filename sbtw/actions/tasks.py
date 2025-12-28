@@ -6,7 +6,6 @@ from sbtw.actions.base import ActionBase, AddEntityBase, BuildBase, MenuBase
 from sbtw.core.constant import METADATA, Status
 from sbtw.core.log import logger
 from sbtw.core.project import get_meta_path
-from sbtw.ui.view import View
 
 
 class AddTask(AddEntityBase):
@@ -53,5 +52,5 @@ class SetStatus(ActionBase):
                 json.dump(data, f, indent=4)
 
     def post_run(self, **kwargs: Any):
-        if (view := (kwargs.get("view"))) and isinstance(view, View):
+        if (view := (kwargs.get("view"))) and hasattr(view, "updated"):
             view.updated.emit(view, kwargs.get("path", Path()).parent)
