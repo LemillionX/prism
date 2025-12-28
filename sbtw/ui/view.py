@@ -14,7 +14,47 @@ if TYPE_CHECKING:
     from sbtw.actions.base import ActionBase
 
 
-class View(QWidget):
+class Base(QWidget):
+    def __init__(self, actions: dict | None = None, parent: QWidget | None = None):
+        super().__init__(parent)
+        self.action_base = self.__class__.__name__.replace("View", "Base")
+        self.action_view = self.__class__.__name__
+        self.actions = actions or {}
+
+    def is_action_valid(self, **kwargs: Any):
+        if (task := kwargs.get("key")) and (data := kwargs.get("data")):
+            name = data.get("name") if data.get("is_element", False) else self.action_view
+            return task == name or (name != self.action_view and (self.action_base in task or task == "Base"))
+        return False
+
+    def add_actions(
+        self,
+        menu: QMenu,
+        actions: dict,
+        data: dict | None = None,
+    ):
+        for key, _actions in actions.items():
+            for action in _actions:
+                if self.is_action_valid(action=action, data=data, key=key):
+                    if isinstance(action, MenuBase):
+                        submenu = menu.addMenu(action.name())
+                        self.add_actions(submenu, {key: action.actions}, data)
+                    else:
+                        self.add_action(menu, action, data)
+
+    def add_action(
+        self,
+        menu: QMenu,
+        action: ActionBase,
+        data: dict | None = None,
+    ):
+        qaction = QAction(action.name(), self)
+        if data:
+            menu.addAction(qaction)
+            qaction.triggered.connect(partial(action.execute, **data, view=self))
+
+
+class View(Base):
     row_selected = Signal(dict)
     row_clicked = Signal(dict)
     updated = Signal(QObject, Path)
@@ -26,13 +66,11 @@ class View(QWidget):
         actions: dict | None = None,
         parent: QWidget | None = None,
     ):
-        super().__init__(parent)
+        super().__init__(actions=actions, parent=parent)
         # ---------- Variables ----------
         self.keys = {"name"}
         self.keys.update(keys or {})
         self.entity = None
-        self.action_base = self.__class__.__name__.replace("View", "Base")
-        self.action_view = self.__class__.__name__
 
         # ---------- Layout ----------
         main_layout = QVBoxLayout(self)
@@ -45,7 +83,7 @@ class View(QWidget):
         self.tree.setHeaderHidden(True)
         self.tree.setIndentation(16)
         self.tree.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.tree.customContextMenuRequested.connect(partial(self.show_context_menu, actions or {}))
+        self.tree.customContextMenuRequested.connect(partial(self.show_context_menu, self.actions))
         self.tree.setSizePolicy(
             QSizePolicy.Policy.Expanding,
             QSizePolicy.Policy.Expanding,
@@ -123,51 +161,13 @@ class View(QWidget):
 
         # Menu for item on the view
         if (item := self.tree.itemAt(pos)) and (row := self.tree.itemWidget(item, 0)):
-            self.add_actions(menu, actions, row=row)
+            self.add_actions(menu, actions, data={**row.data, "is_element": True})
         else:
             # Menu for the view
-            self.add_actions(menu, actions, entity=self.entity)
+            self.add_actions(menu, actions, data=self.entity)
 
         # Show menu at the global position
         menu.exec(self.tree.viewport().mapToGlobal(pos))
-
-    def is_action_valid(self, **kwargs: Any):
-        if task := kwargs.get("key"):
-            row = kwargs.get("row")
-            name = row.data.get("name") if isinstance(row, Row) else self.action_view
-            return task == name or (name != self.action_view and (self.action_base in task or task == "Base"))
-        return False
-
-    def add_actions(
-        self,
-        menu: QMenu,
-        actions: dict,
-        row: Row | None = None,
-        entity: dict | None = None,
-    ):
-        for key, _actions in actions.items():
-            for action in _actions:
-                if self.is_action_valid(action=action, row=row, key=key):
-                    if isinstance(action, MenuBase):
-                        submenu = menu.addMenu(action.name())
-                        self.add_actions(submenu, {key: action.actions}, row, entity)
-                    else:
-                        self.add_action(menu, action, row, entity)
-
-    def add_action(
-        self,
-        menu: QMenu,
-        action: ActionBase,
-        row: Row | None = None,
-        entity: dict | None = None,
-    ):
-        qaction = QAction(action.name(), self)
-        if row or entity:
-            menu.addAction(qaction)
-        if row:
-            qaction.triggered.connect(partial(action.execute, **row.data, view=self))
-        if entity:
-            qaction.triggered.connect(partial(action.execute, **entity, view=self))
 
 
 if __name__ == "__main__":

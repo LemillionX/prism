@@ -20,7 +20,7 @@ class ActionBase(metaclass=ABCMeta):
         logger.debug("%s has no pre-run", self)
 
     def post_run(self, **kwargs: Any):
-        if view := (kwargs.get("view")):
+        if (view := (kwargs.get("view"))) and hasattr(view, "row_selected"):
             view.row_selected.emit(kwargs)
 
     @abstractmethod

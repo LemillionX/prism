@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
 from sbtw.core.constant import EntityType
-from sbtw.core.log import logger
+from sbtw.core.log import NAME, logger
 from sbtw.core.manager import ProjectManager
 from sbtw.ui.assets import AssetsView
 from sbtw.ui.browser import Browser
@@ -24,7 +24,7 @@ class MainWindow(QMainWindow):
     def __init__(self, manager: ProjectManager | None = None):
         super().__init__()
         # ------------- UI  Settings -------------
-        self.setWindowTitle("SBTW")
+        self.setWindowTitle(NAME)
         self.setMinimumSize(800, 500)
         self.resize(1200, 500)
 
@@ -38,17 +38,18 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout(widget)
 
         # ------------- Header -------------
-        header = Header(name="Larsene", projects=self.manager.get_projects(), parent=self)
-        main_layout.addWidget(header, stretch=1)
+        self.header = Header(name="Larsene", projects=self.manager.get_projects(), parent=self)
+        main_layout.addWidget(self.header, stretch=1)
 
         # ------------- Browser -------------
         self.browser = Browser(data={}, parent=self)
         main_layout.addWidget(self.browser, stretch=19)
 
         # ------------- Signals -------------
-        header.projects_grid.project_updated.connect(self.on_project_clicked)
-        header.projects_grid.project_clicked.connect(self.on_project_clicked)
-        header.projects_grid.project_opened.connect(self.on_project_opened)
+        self.header.projects_view.project_updated.connect(self.on_project_clicked)
+        self.header.projects_view.project_clicked.connect(self.on_project_clicked)
+        self.header.projects_view.project_opened.connect(self.on_project_opened)
+        self.header.projects_view.project_removed.connect(self.on_project_removed)
         self.browser.row_selected.connect(self.on_row_selected)
         self.browser.row_clicked.connect(self.on_row_clicked)
         self.browser.assets_view.updated.connect(self.on_view_updated)
@@ -60,10 +61,18 @@ class MainWindow(QMainWindow):
 
     def on_project_clicked(self, project: str):
         self.manager.set_project(project)
+        self.header.projects_view.set_projects(self.manager.get_projects())
         self.browser.assets_view.set_rows(
             rows=self.manager.project.get_entities(),
             entity={"name": project, "path": self.manager.project.root},
         )
+        self.browser.tasks_view.clear_tree()
+        self.browser.files_view.clear_tree()
+
+    def on_project_removed(self):
+        self.manager.project = None
+        self.header.projects_view.set_projects(self.manager.get_projects())
+        self.browser.assets_view.clear_tree()
         self.browser.tasks_view.clear_tree()
         self.browser.files_view.clear_tree()
 
