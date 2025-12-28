@@ -6,8 +6,10 @@ from typing import Any
 
 from qtpy.QtWidgets import QInputDialog
 
-from sbtw.core.constant import EntityType, Status
+from sbtw.actions.utils import prettier
+from sbtw.core.constant import METADATA, EntityType, Status
 from sbtw.core.log import logger
+from sbtw.core.project import get_meta_path
 
 
 class ActionBase(metaclass=ABCMeta):
@@ -71,28 +73,24 @@ class AddEntityBase(ActionBase):
     def name(self) -> str:
         return f"Add {self.entity_type}"
 
-    def prettier(self, text: str) -> str:
-        def format_word(word: str) -> str:
-            return word.capitalize() if word.islower() else word
-
-        return " ".join(format_word(word) for word in text.split()).replace("_", " ").replace(" ", "")
-
     def _execute(self, **kwargs: Any) -> None:
         if path := kwargs.get("path"):
             entity_name, ok = QInputDialog.getText(None, self.entity_type, f"Enter {self.entity_type} name:")
-            entity_name = self.prettier(entity_name)
+            entity_name = prettier(entity_name)
             if ok:
                 try:
                     # For Entities
-                    entity: Path = path / EntityType[self.entity_type].value / entity_name / ".status"
+                    entity: Path = path / EntityType[self.entity_type].value / entity_name
                 except KeyError:
                     # For Tasks and others
-                    entity: Path = path / entity_name / ".status"
+                    entity: Path = path / entity_name
 
-                # Add status and create folder
-                entity.parent.mkdir(exist_ok=True, parents=True)
-                entity.touch(exist_ok=True)
-                with entity.open(mode="w", encoding="utf8") as f:
+                # Add metadata file and create folder
+                meta = get_meta_path(entity) / METADATA
+                meta.parent.mkdir(parents=True, exist_ok=True)
+                entity.mkdir(exist_ok=True, parents=True)
+                meta.touch(exist_ok=True)
+                with meta.open(mode="w", encoding="utf8") as f:
                     json.dump({"name": entity_name, "status": Status.WTG.name}, f, indent=4)
 
     def post_run(self, **kwargs: Any):

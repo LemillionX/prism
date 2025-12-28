@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+
 RE_VERSION = re.compile(r"^(.+_v)(?P<version>\d+)(\.[^.]+)$")
 
 
@@ -29,11 +30,28 @@ def replace_version(s: str, new_version: int) -> str:
     return RE_VERSION.sub(repl, s)
 
 
+def format_word(word: str) -> str:
+    return word.capitalize() if word.islower() else word
+
+
+def prettier(text: str) -> str:
+    return " ".join(format_word(word) for word in text.split()).replace("_", " ").replace(" ", "")
+
+
+def get_path_before_keyword(path: Path, keywords: list[str]) -> Path:
+    parts = path.parts
+
+    for i, part in enumerate(parts):
+        if part in keywords:
+            return Path(*parts[:i])
+
+    return path
+    
+
+
 if __name__ == "__main__":
     from sbtw.core.log import logger
 
-    _folder = Path(
-        r"E:\Sammy\Projects\Test\Assets\MyAsset\Modeling\MyAsset_Modeling_v001.txt"
-    )
+    _folder = Path(r"E:\Sammy\Projects\Test\Assets\MyAsset\Modeling\MyAsset_Modeling_v001.txt")
     logger.info("Last version is %s", get_last_version(_folder))
     logger.info("Next version is %s", get_next_version(_folder))

@@ -3,13 +3,23 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from sbtw.core.constant import CONFIG, DEFAULT_THUMBNAIL, EntityType, Status
+from sbtw.actions.utils import get_path_before_keyword
+from sbtw.core.constant import CONFIG, DEFAULT_THUMBNAIL, METADATA, EntityType, Status
 from sbtw.core.log import logger
+
+
+def get_meta_path(path: Path) -> Path:
+    root = get_path_before_keyword(path=path, keywords=[entity_type.value for entity_type in EntityType])
+    meta = root / ".project"
+    return meta / path.relative_to(root)
 
 
 class Project:
     def __init__(self, name: str, root: Path | str):
         self.name = name
+        self.set_root(root)
+
+    def set_root(self, root: Path):
         self.root = Path(root)
         self.meta = self.root / ".project"
 
@@ -58,9 +68,7 @@ class Project:
                 "name": asset.stem,
                 "type": entity_type.name,
                 "path": asset,
-                "thumbnail": thumbnail
-                if (thumbnail := self.meta / asset.relative_to(self.root)) and thumbnail.exists()
-                else DEFAULT_THUMBNAIL,
+                "thumbnail": self.get_thumbnail(asset),
             }
             for asset in (self.root / entity_type.value).glob("*")
         ]
@@ -68,11 +76,12 @@ class Project:
     def get_tasks(self, entity: str, entity_type: EntityType = EntityType.Asset) -> list[dict]:
         tasks = []
         for task in (self.root / entity_type.value / entity).glob("*"):
-            if not task.stem.startswith("."):
-                data = {"name": task.stem, "path": task}
-                with (task / ".status").open(mode="r", encoding="utf8") as f:
-                    data["status"] = Status[json.load(f).get("status", "WTG")].name
-                tasks.append(data)
+            data = {"name": task.stem, "path": task}
+            meta = get_meta_path(task)
+            meta.mkdir(parents=True, exist_ok=True)
+            with (get_meta_path(task) / METADATA).open(mode="r", encoding="utf8") as f:
+                data["status"] = Status[json.load(f).get("status", "WTG")].name
+            tasks.append(data)
 
         return tasks
 
@@ -81,15 +90,35 @@ class Project:
             {
                 "name": file.name,
                 "path": file,
-                "thumbnail": thumbnail
-                if (thumbnail := self.meta / file.relative_to(self.root)) and thumbnail.exists()
-                else DEFAULT_THUMBNAIL,
+                "thumbnail": self.get_thumbnail(file),
             }
             for file in sorted((self.root / entity_type.value / entity / task).glob("*"), reverse=True)
-            if not file.stem.startswith(".")
         ]
+
+    def get_thumbnail_path(self, element: Path):
+        thumbnail = self.meta / element.relative_to(self.root)
+        if element.is_dir():
+            thumbnail = thumbnail / f"{element.stem}-thumbnail"
+        else:
+            thumbnail = thumbnail.parent / f"{thumbnail.stem}-thumbnail"
+        return thumbnail.with_suffix(".png")
+
+    def get_thumbnail(self, element: Path) -> Path:
+        thumbnail = self.get_thumbnail_path(element)
+        if thumbnail.exists():
+            return thumbnail
+
+        return DEFAULT_THUMBNAIL
+
+    def get_project(self, path: Path):
+        root = get_path_before_keyword(
+            path=path, keywords=[".project"] + [entity_type.value for entity_type in EntityType]
+        )
+        self.name = root.stem
+        self.set_root(root)
 
 
 if __name__ == "__main__":
     _project = Project(name="Test", root=r"E:\Sammy\Projects\Test")
+    logger.info(_project.get_entities(entity_type=EntityType.Asset))
     logger.info(_project.get_entities(entity_type=EntityType.Asset))

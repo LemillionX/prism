@@ -19,6 +19,15 @@ APPDATA.mkdir(parents=True, exist_ok=True)
 CONFIG = APPDATA / "config.json"
 CONFIG.touch(exist_ok=True)
 
+# -------------------- Variables --------------------
+METADATA = ".sbtw"
+
+
+# -------------------- Entities --------------------
+class EntityType(str, Enum):
+    Asset = "Assets"
+    Shot = "Shots"
+
 
 # -------------------- Status --------------------
 class Status(str, Enum):
@@ -27,8 +36,3 @@ class Status(str, Enum):
     HLD = "On Hold"
     WIP = "Work In Progress"
     OK = "Approved"
-
-
-class EntityType(str, Enum):
-    Asset = "Assets"
-    Shot = "Shots"

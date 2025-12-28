@@ -3,8 +3,9 @@ from pathlib import Path
 from typing import Any
 
 from sbtw.actions.base import ActionBase, AddEntityBase, BuildBase, MenuBase
-from sbtw.core.constant import Status
+from sbtw.core.constant import METADATA, Status
 from sbtw.core.log import logger
+from sbtw.core.project import get_meta_path
 from sbtw.ui.view import View
 
 
@@ -42,7 +43,9 @@ class SetStatus(ActionBase):
 
     def _execute(self, **kwargs: Any) -> None:
         if path := Path(kwargs.get("path")):
-            task = path / ".status"
+            meta = get_meta_path(path)
+            meta.mkdir(parents=True, exist_ok=True)
+            task = meta / METADATA
             with task.open(mode="r", encoding="utf8") as f:
                 data = json.load(f)
             data["status"] = self.status.name
