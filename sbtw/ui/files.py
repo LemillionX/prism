@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
 from qtpy.QtWidgets import QTreeWidgetItem, QWidget
 
 from sbtw.ui.view import View
