@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING
 
 from qtpy.QtWidgets import QLineEdit, QTreeWidgetItem, QWidget
 
-from sbtw.ui.row import Row
 from sbtw.ui.view import View
+
+if TYPE_CHECKING:
+    from sbtw.ui.row import Row
 
 
 class AssetsView(View):
