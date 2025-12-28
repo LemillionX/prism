@@ -31,6 +31,8 @@ class View(QWidget):
         self.keys = {"name"}
         self.keys.update(keys or {})
         self.entity = None
+        self.action_base = self.__class__.__name__.replace("View", "Base")
+        self.action_view = self.__class__.__name__
 
         # ---------- Layout ----------
         main_layout = QVBoxLayout(self)
@@ -130,7 +132,11 @@ class View(QWidget):
         menu.exec(self.tree.viewport().mapToGlobal(pos))
 
     def is_action_valid(self, **kwargs: Any):
-        return kwargs.get("key") == "Base"
+        if task := kwargs.get("key"):
+            row = kwargs.get("row")
+            name = row.data.get("name") if isinstance(row, Row) else self.action_view
+            return task == name or (name != self.action_view and (self.action_base in task or task == "Base"))
+        return False
 
     def add_actions(
         self,

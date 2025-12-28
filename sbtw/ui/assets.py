@@ -27,13 +27,6 @@ class AssetsView(View):
         # ---------- Connections ----------
         self.search_bar.textChanged.connect(self._filter_items)
 
-    def is_action_valid(self, **kwargs: Any):
-        if task := kwargs.get("key"):
-            row = kwargs.get("row")
-            name = row.data.get("name") if isinstance(row, Row) else "AssetsView"
-            return task in {name, "AssetsBase"} or (name != "AssetsView" and super().is_action_valid(**kwargs))
-        return super().is_action_valid(**kwargs)
-
     def _filter_items(self, text: str) -> None:
         text = text.lower()
 
