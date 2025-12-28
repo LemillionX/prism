@@ -20,7 +20,7 @@ class RemoveProject(ActionBase):
         # -------------- Pop up --------------
         reply = QMessageBox.question(
             parent,
-            "Delete Project",
+            self.name(),
             f"Are you sure you want to remove the project:\n\n{project} ? \n \n"
             f"NB: This will NOT delete files on your disk, it will simply remove the project from {NAME}",
             QMessageBox.Yes | QMessageBox.No,

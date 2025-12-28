@@ -71,10 +71,16 @@ class AddEntityBase(ActionBase):
     def name(self) -> str:
         return f"Add {self.entity_type}"
 
+    def prettier(self, text: str) -> str:
+        def format_word(word: str) -> str:
+            return word.capitalize() if word.islower() else word
+
+        return " ".join(format_word(word) for word in text.split()).replace("_", " ").replace(" ", "")
+
     def _execute(self, **kwargs: Any) -> None:
         if path := kwargs.get("path"):
             entity_name, ok = QInputDialog.getText(None, self.entity_type, f"Enter {self.entity_type} name:")
-            entity_name = entity_name.title().replace("_", " ").replace(" ", "")
+            entity_name = self.prettier(entity_name)
             if ok:
                 try:
                     # For Entities
