@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-from typing import Any
-
 from qtpy.QtWidgets import QWidget
 
-from sbtw.ui.row import Row
 from sbtw.ui.view import View
 
 
