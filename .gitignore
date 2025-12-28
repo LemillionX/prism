@@ -1,4 +1,22 @@
+# Python
+__pycache__/
 *.pyc
+
+# Virtual environments
 .venv/
-fork/
+
+# IDE
 .idea/
+.ruff_cache/
+
+# PyInstaller
+build/
+dist/
+*.spec.bak
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Custom
+fork/
