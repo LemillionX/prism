@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING
 
 from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
+from sbtw.core.constant import EntityType
 from sbtw.core.log import logger
 from sbtw.core.manager import ProjectManager
-from sbtw.core.project import EntityType
 from sbtw.ui.assets import AssetsView
 from sbtw.ui.browser import Browser
 from sbtw.ui.files import FilesView

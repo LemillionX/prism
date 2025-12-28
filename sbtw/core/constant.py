@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 from enum import Enum
 from pathlib import Path
@@ -25,3 +27,8 @@ class Status(str, Enum):
     HLD = "On Hold"
     WIP = "Work In Progress"
     OK = "Approved"
+
+
+class EntityType(str, Enum):
+    Asset = "Assets"
+    Shot = "Shots"

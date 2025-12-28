@@ -1,16 +1,10 @@
 from __future__ import annotations
 
 import json
-from enum import Enum
 from pathlib import Path
 
-from sbtw.core.constant import CONFIG, DEFAULT_THUMBNAIL, Status
+from sbtw.core.constant import CONFIG, DEFAULT_THUMBNAIL, EntityType, Status
 from sbtw.core.log import logger
-
-
-class EntityType(str, Enum):
-    Asset = "Assets"
-    Shot = "Shots"
 
 
 class Project:

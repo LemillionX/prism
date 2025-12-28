@@ -6,9 +6,8 @@ from typing import Any
 
 from qtpy.QtWidgets import QInputDialog
 
-from sbtw.core.constant import Status
+from sbtw.core.constant import EntityType, Status
 from sbtw.core.log import logger
-from sbtw.core.project import EntityType
 
 
 class ActionBase(metaclass=ABCMeta):
