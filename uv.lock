@@ -39,9 +39,8 @@ wheels = [
 ]
 
 [[package]]
-name = "sbtw"
-version = "0.1.0"
-source = { virtual = "." }
+name = "sbtw-manager"
+source = { editable = "." }
 dependencies = [
     { name = "pyside6-essentials" },
     { name = "qtpy" },

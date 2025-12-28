@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
+from sbtw._version import __version__
 from sbtw.core.constant import EntityType
 from sbtw.core.log import NAME, logger
 from sbtw.core.manager import ProjectManager
@@ -24,7 +25,7 @@ class MainWindow(QMainWindow):
     def __init__(self, manager: ProjectManager | None = None):
         super().__init__()
         # ------------- UI  Settings -------------
-        self.setWindowTitle(NAME)
+        self.setWindowTitle(f"{NAME} - v{__version__}")
         self.setMinimumSize(800, 500)
         self.resize(1200, 500)
 
