@@ -160,7 +160,7 @@ class Project:
                 metadata = json.load(f)
         except (json.decoder.JSONDecodeError, FileNotFoundError):
             logger.warning("Metadata for %s do not exist. Creating them...", file.as_posix())
-            metadata = {"username": getpass.getuser(), "status": Status.WTG.name}
+            metadata = {"author": getpass.getuser(), "status": Status.WTG.name}
             with meta.open(mode="w", encoding="utf8") as f:
                 json.dump(metadata, f, indent=4)
 

@@ -1,11 +1,10 @@
-import json
 from pathlib import Path
 from typing import Any
 
 from sbtw.actions.base import ActionBase, AddEntityBase, BuildBase, MenuBase
-from sbtw.core.constant import METADATA, Status
+from sbtw.core.constant import Status
 from sbtw.core.log import logger
-from sbtw.core.project import Project, get_meta_path
+from sbtw.core.project import Project
 
 
 class AddTask(AddEntityBase):
