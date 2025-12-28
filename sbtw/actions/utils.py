@@ -3,23 +3,29 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from sbtw.core.log import logger
 
 RE_VERSION = re.compile(r"^(.+_v)(?P<version>\d+)(\.[^.]+)$")
 
 
-def get_last_version(file: Path):
-    return max(file.parent.glob(f"*{file.suffix}"))
+def get_last_version(file: Path) -> Path | None:
+    try:
+        return max(file.parent.glob(f"*{file.suffix}"))
+    except ValueError as e:
+        logger.warning(e)
+        return None
 
 
-def get_next_version(file: Path):
+def get_next_version(file: Path) -> Path | None:
     version_nb = 0
     last_version = get_last_version(file)
-    if match := RE_VERSION.match(last_version.name):
+    if (last_version := get_last_version(file)) and (match := RE_VERSION.match(last_version.name)):
         version_nb = int(match.group("version"))
 
-    version_nb += 1
-    next_file = replace_version(last_version.name, version_nb)
-    return file.parent / next_file
+        version_nb += 1
+        next_file = replace_version(last_version.name, version_nb)
+        return file.parent / next_file
+    return None
 
 
 def replace_version(s: str, new_version: int) -> str:
@@ -46,12 +52,13 @@ def get_path_before_keyword(path: Path, keywords: list[str]) -> Path:
             return Path(*parts[:i])
 
     return path
-    
 
 
 if __name__ == "__main__":
     from sbtw.core.log import logger
 
     _folder = Path(r"E:\Sammy\Projects\Test\Assets\MyAsset\Modeling\MyAsset_Modeling_v001.txt")
+    logger.info("Last version is %s", get_last_version(_folder))
+    logger.info("Next version is %s", get_next_version(_folder))
     logger.info("Last version is %s", get_last_version(_folder))
     logger.info("Next version is %s", get_next_version(_folder))

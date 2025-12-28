@@ -53,6 +53,7 @@ class MainWindow(QMainWindow):
         self.browser.row_selected.connect(self.on_row_selected)
         self.browser.row_clicked.connect(self.on_row_clicked)
         self.browser.assets_view.updated.connect(self.on_view_updated)
+        self.browser.files_view.updated.connect(self.on_view_updated)
         self.browser.tasks_view.updated.connect(self.on_view_updated)
 
     def on_project_opened(self):
@@ -124,6 +125,16 @@ class MainWindow(QMainWindow):
                     entity_type=EntityType(tokens[-2]),
                 ),
                 entity={"name": tokens[-1], "path": path},
+            )
+
+        if isinstance(sender, FilesView):
+            self.browser.files_view.set_rows(
+                rows=self.manager.project.get_files(
+                    task=tokens[-2],
+                    entity=tokens[-3],
+                    entity_type=EntityType(tokens[-4]),
+                ),
+                entity={"name": tokens[-2], "path": path.parent},
             )
 
 

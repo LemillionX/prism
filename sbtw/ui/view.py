@@ -120,6 +120,7 @@ class View(Base):
 
     def clear_tree(self):
         if isinstance(self.tree, QTreeWidget):
+            self.entity = None
             while self.tree.topLevelItemCount():
                 item = self.tree.takeTopLevelItem(0)
 
