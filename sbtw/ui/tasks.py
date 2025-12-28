@@ -1,19 +1,18 @@
 from __future__ import annotations
 
-from qtpy.QtWidgets import QMenu, QWidget
+from qtpy.QtWidgets import QWidget
 
-from sbtw.actions.base import ActionBase
-from sbtw.ui.row import Row
 from sbtw.ui.view import View
 
 
 class TasksView(View):
-    def __init__(self, rows: list[dict] | None = None, parent: QWidget | None = None):
-        super().__init__(rows=rows, parent=parent)
-
-    def add_action(self, menu: QMenu, key: str, action: ActionBase, row: Row):
-        if key == row.data.get("name"):
-            super().add_action(menu, key, action, row)
+    def __init__(
+        self,
+        rows: list[dict] | None = None,
+        actions: dict | None = None,
+        parent: QWidget | None = None,
+    ):
+        super().__init__(rows=rows, keys=["status"], actions=actions, parent=parent)
 
 
 if __name__ == "__main__":

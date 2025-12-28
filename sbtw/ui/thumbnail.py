@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from qtpy.QtCore import QRect, Qt
+from qtpy.QtCore import QEvent, QRect, Qt
 from qtpy.QtGui import QCursor, QImage, QPixmap
 from qtpy.QtWidgets import QDialog, QHBoxLayout, QLabel, QWidget
 
@@ -44,7 +44,7 @@ class Thumbnail(QLabel):
         self.popup_image.setPixmap(self.images[0])
         self.popup_image.adjustSize()
 
-    def mouseMoveEvent(self, event):
+    def mouseMoveEvent(self, event: QEvent):
         if not self.images:
             return
         frame_count = len(self.images)
@@ -52,12 +52,12 @@ class Thumbnail(QLabel):
         if index in range(len(self.images)):
             self.popup_image.setPixmap(self.images[index])
 
-    def enterEvent(self, event):
+    def enterEvent(self, event: QEvent):
         if self._image:
             self.show_full_image()
         super().enterEvent(event)
 
-    def leaveEvent(self, event):
+    def leaveEvent(self, event: QEvent):
         if self.popup:
             self.popup.close()
         super().leaveEvent(event)

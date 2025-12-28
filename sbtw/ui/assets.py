@@ -1,14 +1,23 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from qtpy.QtWidgets import QLineEdit, QTreeWidgetItem, QWidget
 
-from sbtw.ui.row import Row
 from sbtw.ui.view import View
+
+if TYPE_CHECKING:
+    from sbtw.ui.row import Row
 
 
 class AssetsView(View):
-    def __init__(self, rows: list[dict] | None = None, parent: QWidget | None = None):
-        super().__init__(rows=rows, parent=parent)
+    def __init__(
+        self,
+        rows: list[dict] | None = None,
+        actions: dict | None = None,
+        parent: QWidget | None = None,
+    ):
+        super().__init__(rows=rows, actions=actions, parent=parent)
         main_layout = self.layout()
 
         # ---------- Search bar ----------
@@ -20,7 +29,7 @@ class AssetsView(View):
         # ---------- Connections ----------
         self.search_bar.textChanged.connect(self._filter_items)
 
-    def _filter_items(self, text: str):
+    def _filter_items(self, text: str) -> None:
         text = text.lower()
 
         for i in range(self.tree.topLevelItemCount()):
