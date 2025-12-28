@@ -46,6 +46,7 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.browser, stretch=19)
 
         # ------------- Signals -------------
+        header.projects_grid.project_updated.connect(self.on_project_clicked)
         header.projects_grid.project_clicked.connect(self.on_project_clicked)
         header.projects_grid.project_opened.connect(self.on_project_opened)
         self.browser.row_selected.connect(self.on_row_selected)

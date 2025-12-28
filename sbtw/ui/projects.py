@@ -1,18 +1,28 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import TYPE_CHECKING
+from pathlib import Path
 
-from qtpy.QtCore import QEvent, QObject, QRect, QSize, Qt, Signal
-from qtpy.QtGui import QMouseEvent, QPixmap
-from qtpy.QtWidgets import QGridLayout, QLabel, QVBoxLayout, QWidget
+from qtpy.QtCore import QDir, QEvent, QObject, QRect, QRegularExpression, QSize, Qt, Signal
+from qtpy.QtGui import QMouseEvent, QPixmap, QRegularExpressionValidator
+from qtpy.QtWidgets import (
+    QDialog,
+    QDialogButtonBox,
+    QFileDialog,
+    QFormLayout,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from sbtw.core.constant import BROWSER_EXPLORER_ICON, PLUS_ICON, PROJECTS_THUMBNAIL
 from sbtw.core.log import logger
+from sbtw.core.manager import ProjectManager
 from sbtw.ui.label import Label
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def scale_and_crop_center(pixmap: QPixmap, target_size: QSize) -> QPixmap:
@@ -36,6 +46,7 @@ def scale_and_crop_center(pixmap: QPixmap, target_size: QSize) -> QPixmap:
 class ProjectsGrid(QWidget):
     project_clicked = Signal(str)
     project_opened = Signal()
+    project_updated = Signal(str)
 
     def __init__(self, projects: list[dict], parent: QWidget | None = None):
         super().__init__(parent=parent)
@@ -71,12 +82,8 @@ class ProjectsGrid(QWidget):
         ]
         row = len(projects) // cols
         for col, action in enumerate(actions):
-            btn = ProjectLabel(
-                text=action.get("name"), thumbnail=action.get("icon"), parent=self
-            )
-            btn.clicked.connect(
-                partial(self.on_project_clicked, {"action": action.get("name")})
-            )
+            btn = ProjectLabel(text=action.get("name"), thumbnail=action.get("icon"), parent=self)
+            btn.clicked.connect(partial(self.on_project_clicked, {"action": action.get("name")}))
             main_layout.addWidget(btn, row + 1, col)
 
         if parent:
@@ -84,7 +91,14 @@ class ProjectsGrid(QWidget):
 
     def on_project_clicked(self, project: dict):
         if project.get("action") == "Create new Project":
-            logger.info("Creating a new project")
+            dialog = ProjectForm()
+            if dialog.exec() == QDialog.Accepted:
+                logger.info("Creating a new project")
+                name, root = dialog.get_projects_data()
+                manager: ProjectManager = ProjectManager()
+                manager.create(name=name, root=root)
+                self.project_updated.emit(name)
+
         elif project.get("action") == "Open current Project in Explorer":
             logger.info("Opening current project in Explorer ")
             self.project_opened.emit()
@@ -113,9 +127,7 @@ class ProjectsLabel(Label):
 class ProjectLabel(QWidget):
     clicked = Signal()
 
-    def __init__(
-        self, text: str, thumbnail: Path | None = None, parent: QWidget | None = None
-    ):
+    def __init__(self, text: str, thumbnail: Path | None = None, parent: QWidget | None = None):
         super().__init__(parent=parent)
 
         width, height = 200, 112
@@ -159,21 +171,61 @@ class ProjectLabel(QWidget):
         super().mousePressEvent(event)
 
 
+class ProjectForm(QDialog):
+    def __init__(self, parent: QWidget | None = None):
+        super().__init__(parent=parent)
+        # ------------- UI Settings -------------
+        self.setWindowTitle("Create a project")
+
+        # ------------- Layout -------------
+        main_layout = QFormLayout(self)
+        self.setLayout(main_layout)
+
+        # ------------- Project Name -------------
+        self.name = QLineEdit(parent=self, placeholderText="MyProjectName")
+        self.name.setFixedWidth(200)
+        main_layout.addRow("Project Name:", self.name)
+
+        # Add validator to restrict characters to Windows folder name rules
+        regex = QRegularExpression(r'^[^\s\.\\\/:*?"<>|][^\s\\\/:*?"<>|]*[^\s\.\\\/:*?"<>|]$')
+        validator = QRegularExpressionValidator(regex, self.name)
+        self.name.setValidator(validator)
+
+        # ------------- Project Path -------------
+        self.path_edit = QLineEdit(parent=self, placeholderText="C:/Path/To/Root/Folder. Default is C:/")
+        self.path_edit.setMinimumWidth(200)
+        self.browse_button = QPushButton("Browse", parent=self)
+        self.browse_button.clicked.connect(self.browse_path)
+        path_layout = QHBoxLayout()
+        path_layout.addWidget(self.path_edit)
+        path_layout.addWidget(self.browse_button)
+        main_layout.addRow("Project Path:", path_layout)
+
+        # ------------- Buttons -------------
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        main_layout.addRow(button_box)
+
+    def browse_path(self):
+        # Get the default disk (C: on Windows)
+        default_dir = QDir.rootPath()  # This gives the root directory, e.g., "C:/" on Windows
+        folder = QFileDialog.getExistingDirectory(self, "Select Project Directory", default_dir)
+        if folder:
+            self.path_edit.setText(folder)
+
+    def get_projects_data(self) -> tuple[str, Path]:
+        return self.name.text(), Path(self.path_edit.text() or "C:/", self.name.text())
+
+
 if __name__ == "__main__":
     import sys
 
     from qtpy.QtWidgets import QApplication
 
-    from sbtw.core.constant import PROJECTS_THUMBNAIL
-
     app = QApplication(sys.argv)
 
-    _projects = [
-        {"name": f"MyProject{i:02d}", "thumbnail": PROJECTS_THUMBNAIL}
-        for i in range(10)
-    ]
-
-    view = ProjectsGrid(projects=_projects)
+    view = ProjectForm()
     view.show()
 
     sys.exit(app.exec())

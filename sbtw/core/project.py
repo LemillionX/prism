@@ -40,11 +40,17 @@ class Project:
         logger.info("Project %s saved !", self.name)
 
     def create(self):
+        logger.info("Creating root folder %s ...", self.root.as_posix())
         self.root.mkdir(parents=True, exist_ok=True)
+        logger.info("Creating metadata folder %s ...", self.meta.as_posix())
         self.meta.mkdir(parents=True, exist_ok=True)
+
         for folder in ["Assets", "Shots"]:
+            logger.info("Creating folder %s ...", (self.root / folder).as_posix())
             (self.root / folder).mkdir(parents=True, exist_ok=True)
+            logger.info("Creating metadata folder %s ...", (self.meta / folder).as_posix())
             (self.meta / folder).mkdir(parents=True, exist_ok=True)
+        logger.info("Project %s created !", self.name)
 
     def get_entities(self, entity_type: EntityType = EntityType.Asset) -> list[dict]:
         return [
