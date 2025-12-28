@@ -192,8 +192,8 @@ class ProjectForm(QDialog):
         self.name.setValidator(validator)
 
         # ------------- Project Path -------------
-        self.path_edit = QLineEdit(parent=self, placeholderText="C:/Path/To/Root/Folder. Default is C:/")
-        self.path_edit.setMinimumWidth(200)
+        self.path_edit = QLineEdit(parent=self, placeholderText=f"C:/Path/To/Root/Folder. Default is {QDir.rootPath()}")
+        self.path_edit.setMinimumWidth(250)
         self.browse_button = QPushButton("Browse", parent=self)
         self.browse_button.clicked.connect(self.browse_path)
         path_layout = QHBoxLayout()
