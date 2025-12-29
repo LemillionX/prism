@@ -1,10 +1,19 @@
 [project]
-name = "sbtw"
-version = "0.1.0"
-description = "Project manager based on Prism"
+name = "sbtw-manager"
+dynamic = ["version"]
+description = "Project manager"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "pyside6-essentials>=6.10.1",
     "qtpy>=2.4.3",
 ]
+
+[project.scripts]
+sbtw = "sbtw.main:launch" 
+
+[tool.uv]
+package = true
+
+[tool.setuptools.packages.find]
+where = ["sbtw"]
