@@ -1,11 +1,11 @@
 import sys
 
-from core.constant import SPLASH_SCREEN
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QColor, QPixmap
 from qtpy.QtWidgets import QApplication, QSplashScreen
 
 from sbtw._version import __version__
+from sbtw.core.constant import SPLASH_SCREEN
 from sbtw.core.log import NAME, logger
 from sbtw.ui.ui import MainWindow
 
