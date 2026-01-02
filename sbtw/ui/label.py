@@ -18,12 +18,11 @@ if TYPE_CHECKING:
 class Label(QWidget):
     clicked = Signal()
 
-    def __init__(self, text: str, icon: Path, parent: QWidget | None = None):
+    def __init__(self, text: str, icon: Path, size: int = 32, parent: QWidget | None = None):
         super().__init__(parent=parent)
         # ------------- Variables -------------
         self.label = QLabel(text)
-        self.size = 32
-
+        self.size = size
         # ------------- Layout -------------
         main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -64,7 +63,7 @@ class UserLabel(Label):
     text_updated = Signal(str)
 
     def __init__(self, name: str, parent: QWidget | None = None):
-        super().__init__(text=name, icon=USER_THUMBNAIL, parent=parent)
+        super().__init__(text=name, icon=USER_THUMBNAIL, size=40, parent=parent)
         self.clicked.connect(self.set_name)
 
     def set_name(self):

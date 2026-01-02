@@ -156,7 +156,7 @@ class ProjectsView(QWidget):
 
 class ProjectsLabel(Label):
     def __init__(self, parent: QWidget | None = None):
-        super().__init__(text="Projects", icon=PROJECTS_THUMBNAIL, parent=parent)
+        super().__init__(text="Projects", icon=PROJECTS_THUMBNAIL, size=40, parent=parent)
 
 
 class ProjectView(Base):
@@ -283,8 +283,7 @@ class ProjectForm(QDialog):
 
 class ProjectLabel(Label):
     def __init__(self, parent: QWidget | None = None):
-        super().__init__(text='Choose a project in "Projects" tabs', icon=PROJECTS_THUMBNAIL, parent=parent)
-        self.size = 100
+        super().__init__(text='Choose a project in "Projects" tabs', icon=PROJECTS_THUMBNAIL, size=70, parent=parent)
 
     def set_project(self, name: str):
         self.set_text(f"Current Project:\n {name}")
