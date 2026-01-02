@@ -30,6 +30,9 @@ class ProjectManager:
             with CONFIG.open(mode="w", encoding="utf8") as f:
                 json.dump(data, f, indent=4)
 
+        logger.info("Configuration loaded from %s", CONFIG.as_posix())
+        logger.info("Connected as %s", data.get("username"))
+
         return data
 
     def save_config(self, **kwargs: Any) -> None:

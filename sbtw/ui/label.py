@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING
 
+from core.log import LOG_DIR
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtGui import QMouseEvent, QPixmap
 from qtpy.QtWidgets import QHBoxLayout, QInputDialog, QLabel, QWidget
 
-from sbtw.core.constant import REFRESH_ICON, USER_THUMBNAIL
+from sbtw.core.constant import LOG_THUMBNAIL, REFRESH_ICON, USER_THUMBNAIL
 from sbtw.core.manager import ProjectManager
 
 if TYPE_CHECKING:
@@ -77,6 +79,15 @@ class UserLabel(Label):
 class RefreshLabel(Label):
     def __init__(self, parent: QWidget | None = None):
         super().__init__(text="", icon=REFRESH_ICON, parent=parent)
+
+
+class LogLabel(Label):
+    def __init__(self, parent: QWidget | None = None):
+        super().__init__(text="Logs", icon=LOG_THUMBNAIL, parent=parent)
+        self.clicked.connect(self.open_logs_folder)
+
+    def open_logs_folder(self):
+        os.startfile(LOG_DIR)
 
 
 if __name__ == "__main__":

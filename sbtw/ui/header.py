@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import sys
+
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QHBoxLayout, QSlider, QWidget
 
 from sbtw.core.config import ACTIONS
 from sbtw.core.constant import PROJECTS_THUMBNAIL
-from sbtw.ui.label import RefreshLabel, UserLabel
+from sbtw.ui.label import LogLabel, RefreshLabel, UserLabel
 from sbtw.ui.projects import ProjectLabel, ProjectsLabel, ProjectsView
 
 
@@ -37,6 +39,9 @@ class Header(QWidget):
         # ------------- Refresh -------------
         refresh_icon = RefreshLabel()
         main_layout.addWidget(refresh_icon, alignment=Qt.AlignmentFlag.AlignRight)
+        # ------------- Open Logs -------------
+        logs_btn = LogLabel(parent=self)
+        main_layout.addWidget(logs_btn, alignment=Qt.AlignmentFlag.AlignRight)
 
     def set_name(self, name: str):
         self.name = name

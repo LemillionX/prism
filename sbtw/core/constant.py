@@ -13,6 +13,7 @@ REFRESH_ICON = MEDIAS_FOLDER / "refresh-icon.png"
 PLUS_ICON = MEDIAS_FOLDER / "plus-icon.png"
 BROWSER_EXPLORER_ICON = MEDIAS_FOLDER / "browse-explorer-icon.png"
 SPLASH_SCREEN = MEDIAS_FOLDER / "splash-screen.png"
+LOG_THUMBNAIL = MEDIAS_FOLDER / "log-thumbnail.png"
 
 # -------------------- Folders --------------------
 APPDATA = Path(os.getenv("APPDATA"), "sbtw")
