@@ -37,3 +37,22 @@ class Status(str, Enum):
     HLD = "On Hold"
     WIP = "Work In Progress"
     OK = "Approved"
+
+
+# -------------------- Softwares --------------------
+SOFTWARES = {
+    ".ma": [MEDIAS_FOLDER / "maya-icon.png"],
+    ".mb": [MEDIAS_FOLDER / "maya-icon.png"],
+    ".psd": [MEDIAS_FOLDER / "photoshop-icon.png", MEDIAS_FOLDER / "clip-studio-icon.png"],
+    ".blend": [MEDIAS_FOLDER / "blender-icon.png"],
+    ".fbx": [MEDIAS_FOLDER / "fbx-icon.png"],
+    ".obj": [MEDIAS_FOLDER / "obj-icon.png"],
+    ".png": [MEDIAS_FOLDER / "image-icon.png"],
+    ".jpg": [MEDIAS_FOLDER / "image-icon.png"],
+    ".jpeg": [MEDIAS_FOLDER / "image-icon.png"],
+    ".mp4": [MEDIAS_FOLDER / "video-icon.png"],
+    ".mov": [MEDIAS_FOLDER / "video-icon.png"],
+    ".mp3": [MEDIAS_FOLDER / "audio-icon.png"],
+    ".wav": [MEDIAS_FOLDER / "audio-icon.png"],
+    ".txt": [MEDIAS_FOLDER / "file-icon.png"],
+}

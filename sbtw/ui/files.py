@@ -25,7 +25,7 @@ class FilesView(View):
         actions: dict | None = None,
         parent: QWidget | None = None,
     ):
-        super().__init__(rows=rows, keys=["author", "status", "date", "size"], actions=actions, parent=parent)
+        super().__init__(rows=rows, keys=["author", "icon", "date", "size"], actions=actions, parent=parent)
         self.setAcceptDrops(True)
         self.files_dropped.connect(self.on_files_dropped)
 
