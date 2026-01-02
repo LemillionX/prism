@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QHBoxLayout, QWidget
+from qtpy.QtWidgets import QHBoxLayout, QSlider, QWidget
 
 from sbtw.core.config import ACTIONS
 from sbtw.core.constant import PROJECTS_THUMBNAIL
@@ -52,6 +52,33 @@ class Header(QWidget):
 
         self.projects_view.move(x, y)
         self.projects_view.show()
+
+
+class Footer(QWidget):
+    def __init__(self, parent: QWidget | None = None):
+        super().__init__(parent=parent)
+        # ------------- Layout -------------
+        main_layout = QHBoxLayout(self)
+        main_layout.addStretch()
+        # ------------- Slider for Thumbnail size -------------
+        self.size_slider = SizeSlider(parent=self)
+        main_layout.addWidget(self.size_slider, alignment=Qt.AlignmentFlag.AlignRight)
+
+
+class SizeSlider(QWidget):
+    def __init__(self, parent: QWidget | None = None):
+        super().__init__(parent=parent)
+        # ------------- Layout -------------
+        main_layout = QHBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        # ------------- Slider -------------
+        self.slider = QSlider(Qt.Orientation.Horizontal)
+        self.slider.setMinimum(1)
+        self.slider.setMaximum(10)
+        self.slider.setValue(1)
+        self.slider.setTickInterval(1)
+        self.slider.setTickPosition(QSlider.TickPosition.NoTicks)
+        main_layout.addWidget(self.slider)
 
 
 if __name__ == "__main__":

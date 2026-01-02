@@ -20,10 +20,21 @@ class DataView(QWidget):
         self.main_layout.setHorizontalSpacing(40)
         self.main_layout.setVerticalSpacing(4)
 
+        # Ensure the layout is installed on this widget so children are shown
+        self.setLayout(self.main_layout)
+
         self.set_data(data=data)
 
     def set_data(self, data: dict):
         cols = 2
+
+        # Clear existing widgets from the layout
+        while self.main_layout.count():
+            item = self.main_layout.takeAt(0)
+            if item:
+                w = item.widget()
+                if w:
+                    w.setParent(None)
 
         for i, (key, value) in enumerate(data.items()):
             row = i // cols

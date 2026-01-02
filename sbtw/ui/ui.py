@@ -12,7 +12,7 @@ from sbtw.core.manager import ProjectManager
 from sbtw.ui.assets import AssetsView
 from sbtw.ui.browser import Browser
 from sbtw.ui.files import FilesView
-from sbtw.ui.header import Header
+from sbtw.ui.header import Footer, Header
 from sbtw.ui.tasks import TasksView
 
 if TYPE_CHECKING:
@@ -47,7 +47,12 @@ class MainWindow(QMainWindow):
         self.browser = Browser(data={}, parent=self)
         main_layout.addWidget(self.browser, stretch=19)
 
+        # ------------- Footer -------------
+        self.footer = Footer(parent=self)
+        main_layout.addWidget(self.footer, stretch=1)
+
         # ------------- Signals -------------
+        self.footer.size_slider.slider.valueChanged.connect(self.browser.set_thumbnail_size)
         self.header.projects_view.project_updated.connect(self.on_project_clicked)
         self.header.projects_view.project_clicked.connect(self.on_project_clicked)
         self.header.projects_view.project_opened.connect(self.on_project_opened)

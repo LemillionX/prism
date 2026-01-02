@@ -69,6 +69,11 @@ class Browser(QWidget):
         if isinstance(self.sender(), View):
             self.row_clicked.emit(data.get("path"))
 
+    def set_thumbnail_size(self, size_multiplier: int):
+        self.assets_view.set_thumbnail_size(size_multiplier)
+        self.tasks_view.set_thumbnail_size(size_multiplier)
+        self.files_view.set_thumbnail_size(size_multiplier)
+
 
 if __name__ == "__main__":
     import sys

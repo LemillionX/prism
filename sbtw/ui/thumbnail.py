@@ -1,17 +1,21 @@
 from __future__ import annotations
 
-from qtpy.QtCore import QEvent, QRect, Qt
+from qtpy.QtCore import QEvent, QRect, Qt, Signal
 from qtpy.QtGui import QCursor, QImage, QPixmap
 from qtpy.QtWidgets import QDialog, QHBoxLayout, QLabel, QWidget
 
 
 class Thumbnail(QLabel):
+    size_changed = Signal(int)
+
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         self.setObjectName("Thumbnail")
         self.setMouseTracking(True)
         self._image = None
         self.images = None
+        self._filmstrip = None
+        self.size_multiplier = 1
 
         self.popup = QDialog(self, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.popup.setAttribute(Qt.WA_TranslucentBackground)
@@ -20,29 +24,56 @@ class Thumbnail(QLabel):
         self.popup.layout().addWidget(self.popup_image)
 
     def set_image(self, pixmap: QPixmap | QImage):
+        # Normalize to QPixmap
+        if isinstance(pixmap, QImage):
+            pixmap = QPixmap.fromImage(pixmap)
+
         self._image = pixmap
-        self.setPixmap(pixmap.scaled(50, 50, Qt.KeepAspectRatio))
-        size = min(max(pixmap.width(), pixmap.height()), 256)
-        self.popup_image.setPixmap(
-            pixmap.scaled(size, size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        )
+        base = int(50 * max(1, self.size_multiplier))
+        self.setPixmap(pixmap.scaled(base, base, Qt.KeepAspectRatio))
+        max_side = max(pixmap.width(), pixmap.height())
+        size = int(min(max_side * max(1, self.size_multiplier), 256 * max(1, self.size_multiplier)))
+        self.popup_image.setPixmap(pixmap.scaled(size, size, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        # Notify listeners that the displayed thumbnail size changed
+        self.adjustSize()
+        try:
+            height = self.size().height()
+        except Exception:  # noqa: BLE001
+            height = base
+        self.size_changed.emit(int(height))
 
     def set_filmstrip(self, pixmap: QPixmap):
         self._filmstrip = pixmap
-        image_w = self._image.width()
-        image_h = self._image.height()
-        film_w = self._filmstrip.width()
-        film_h = self._filmstrip.height()
+        if not self._image:
+            return
 
-        width = image_w / round(image_h / film_h)
-        image_count = int(film_w / width)
+        image_w = int(self._image.width())
+        image_h = int(self._image.height())
+        film_w = int(self._filmstrip.width())
+        film_h = int(self._filmstrip.height())
+
+        # Avoid division by zero; compute per-frame width as integer
+        divisor = max(1, round(image_h / film_h))
+        frame_width = max(1, int(image_w / divisor))
+        image_count = int(film_w / frame_width) if frame_width > 0 else 0
 
         self.images = []
         for i in range(image_count):
-            rect = QRect(width * i, 0, width, image_h)
+            rect = QRect(int(frame_width * i), 0, frame_width, image_h)
             self.images.append(self._filmstrip.copy(rect))
-        self.popup_image.setPixmap(self.images[0])
-        self.popup_image.adjustSize()
+
+        if self.images:
+            # scale preview according to multiplier
+            preview = self.images[0]
+            if self.size_multiplier != 1:
+                preview = preview.scaled(
+                    int(preview.width() * self.size_multiplier),
+                    int(preview.height() * self.size_multiplier),
+                    Qt.KeepAspectRatio,
+                    Qt.SmoothTransformation,
+                )
+            self.popup_image.setPixmap(preview)
+            self.popup_image.adjustSize()
 
     def mouseMoveEvent(self, event: QEvent):
         if not self.images:
@@ -65,6 +96,15 @@ class Thumbnail(QLabel):
     def show_full_image(self):
         self.popup.move(QCursor.pos())
         self.popup.show()
+
+    def set_size_multiplier(self, size_multiplier: int):
+        # Update multiplier and rescale current pixmap(s)
+        self.size_multiplier = max(1, int(size_multiplier))
+        self.resize(50 * self.size_multiplier, 50 * self.size_multiplier)
+        if self._image:
+            self.set_image(self._image)
+        if getattr(self, "_filmstrip", None):
+            self.set_filmstrip(self._filmstrip)
 
 
 if __name__ == "__main__":

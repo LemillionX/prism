@@ -6,10 +6,11 @@ from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from qtpy.QtCore import QObject, QPoint, Qt, Signal
+from qtpy.QtCore import QObject, QPoint, QSize, Qt, Signal
 from qtpy.QtWidgets import QAction, QMenu, QSizePolicy, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget
 
 from sbtw.actions.base import MenuBase
+from sbtw.core.log import logger
 from sbtw.ui.row import Row
 
 if TYPE_CHECKING:
@@ -119,13 +120,48 @@ class View(Base):
         row = Row(data=data, keys=self.keys, parent=self)
         self.tree.setItemWidget(item, 0, row)
 
+        # Ensure the column is reasonably wide so the widget can layout
+        padding = 6
+        try:
+            vw = max(120, self.tree.viewport().width())
+            self.tree.setColumnWidth(0, vw)
+        except Exception as e:  # noqa: BLE001
+            logger.exception("Failed to set column width: %s", e)
+
+        # Set an initial height for the item based on the thumbnail widget
+        try:
+            thumb_h = row.thumbnail.size().height()
+        except Exception:  # noqa: BLE001
+            thumb_h = 50
+        try:
+            item.setSizeHint(0, QSize(0, max(24, int(thumb_h) + padding)))
+        except Exception as e:  # noqa: BLE001
+            logger.exception("Failed to set item size hint: %s", e)
+
+        # Update item height when the thumbnail changes size; update tree layout
+        try:
+
+            def _update_item_height(h: int, it: QTreeWidgetItem = item) -> None:
+                try:
+                    it.setSizeHint(0, QSize(0, max(24, int(h) + padding)))
+                    # Recompute layout so the tree reflects new sizes
+                    self.tree.doItemsLayout()
+                    self.tree.updateGeometries()
+                except Exception:  # noqa: BLE001
+                    logger.exception("Failed to update item height")
+
+            if hasattr(row, "thumbnail") and hasattr(row.thumbnail, "size_changed"):
+                row.thumbnail.size_changed.connect(_update_item_height)
+        except Exception:  # noqa: BLE001
+            logger.exception("Failed to connect thumbnail size change signal")
+
         return item
 
     def clear_tree(self):
         if isinstance(self.tree, QTreeWidget):
             self.entity = None
 
-            def _delete_item_widgets(item: QTreeWidgetItem):
+            def _delete_item_widgets(item: QTreeWidgetItem) -> None:
                 # Recursively clear child widgets
                 for i in range(item.childCount() - 1, -1, -1):
                     child = item.child(i)
@@ -215,6 +251,21 @@ class View(Base):
 
         # Show menu at the global position
         menu.exec(self.tree.viewport().mapToGlobal(pos))
+
+    def set_thumbnail_size(self, size_multiplier: int):
+        for i in range(self.tree.topLevelItemCount()):
+            item = self.tree.topLevelItem(i)
+            self._set_thumbnail_size_recursive(item, size_multiplier)
+
+    def _set_thumbnail_size_recursive(self, item: QTreeWidgetItem, size_multiplier: int) -> None:
+        row: Row | None = self.tree.itemWidget(item, 0)
+
+        if row:
+            row.thumbnail.set_size_multiplier(size_multiplier)
+
+        # Check children
+        for i in range(item.childCount()):
+            self._set_thumbnail_size_recursive(item.child(i), size_multiplier)
 
 
 if __name__ == "__main__":
