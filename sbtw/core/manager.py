@@ -10,6 +10,7 @@ from sbtw.core.log import logger
 from sbtw.core.project import Project
 
 
+# TODO: Refactor to use singleton pattern
 class ProjectManager:
     def __init__(self, project: Project | None = None):
         self.project = project

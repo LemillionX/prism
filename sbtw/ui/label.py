@@ -19,8 +19,8 @@ class Label(QWidget):
     def __init__(self, text: str, icon: Path, parent: QWidget | None = None):
         super().__init__(parent=parent)
         # ------------- Variables -------------
-        size = 32
         self.label = QLabel(text)
+        self.size = 32
 
         # ------------- Layout -------------
         main_layout = QHBoxLayout(self)
@@ -29,18 +29,11 @@ class Label(QWidget):
         self.setLayout(main_layout)
 
         # ------------- Icon -------------
-        icon_label = QLabel()
-        icon_label.setPixmap(
-            QPixmap(icon).scaled(
-                size,
-                size,
-                Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation,
-            )
-        )
+        self.icon = QLabel()
+        self.set_icon(icon)
 
         # ------------- UI -------------
-        main_layout.addWidget(icon_label, alignment=Qt.AlignmentFlag.AlignRight)
+        main_layout.addWidget(self.icon, alignment=Qt.AlignmentFlag.AlignRight)
         main_layout.addWidget(self.label, alignment=Qt.AlignmentFlag.AlignLeft)
         main_layout.addStretch()
 
@@ -50,6 +43,19 @@ class Label(QWidget):
             event.accept()
             return
         super().mousePressEvent(event)
+
+    def set_text(self, text: str):
+        self.label.setText(text)
+
+    def set_icon(self, icon: Path):
+        self.icon.setPixmap(
+            QPixmap(icon).scaled(
+                self.size,
+                self.size,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+        )
 
 
 class UserLabel(Label):

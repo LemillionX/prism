@@ -281,6 +281,16 @@ class ProjectForm(QDialog):
         return self.name.text(), Path(self.path_edit.text() or "C:/", self.name.text())
 
 
+class ProjectLabel(Label):
+    def __init__(self, parent: QWidget | None = None):
+        super().__init__(text='Choose a project in "Projects" tabs', icon=PROJECTS_THUMBNAIL, parent=parent)
+        self.size = 100
+
+    def set_project(self, name: str):
+        self.set_text(f"Current Project:\n {name}")
+        self.set_icon(ProjectManager().get_projects(to_dict=True).get(name).get("thumbnail", PROJECTS_THUMBNAIL))
+
+
 if __name__ == "__main__":
     import sys
 

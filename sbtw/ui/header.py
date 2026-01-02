@@ -6,7 +6,7 @@ from qtpy.QtWidgets import QHBoxLayout, QSlider, QWidget
 from sbtw.core.config import ACTIONS
 from sbtw.core.constant import PROJECTS_THUMBNAIL
 from sbtw.ui.label import RefreshLabel, UserLabel
-from sbtw.ui.projects import ProjectsLabel, ProjectsView
+from sbtw.ui.projects import ProjectLabel, ProjectsLabel, ProjectsView
 
 
 class Header(QWidget):
@@ -19,6 +19,10 @@ class Header(QWidget):
         # ------------- Layout -------------
         main_layout = QHBoxLayout(self)
         main_layout.setSpacing(30)
+
+        # ------------- Current Project -------------
+        self.project_label = ProjectLabel(parent=self)
+        main_layout.addWidget(self.project_label, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # ------------- User -------------
         main_layout.addStretch()

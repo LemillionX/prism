@@ -55,6 +55,7 @@ class MainWindow(QMainWindow):
         self.footer.size_slider.slider.valueChanged.connect(self.browser.set_thumbnail_size)
         self.header.projects_view.project_updated.connect(self.on_project_clicked)
         self.header.projects_view.project_clicked.connect(self.on_project_clicked)
+        self.header.projects_view.project_clicked.connect(self.header.project_label.set_project)
         self.header.projects_view.project_opened.connect(self.on_project_opened)
         self.header.projects_view.project_removed.connect(self.on_project_removed)
         self.browser.row_selected.connect(self.on_row_selected)
