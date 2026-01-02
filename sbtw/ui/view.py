@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+from collections import OrderedDict
 from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -72,6 +74,7 @@ class View(Base):
         self.keys = {"name"}
         self.keys.update(keys or {})
         self.entity = None
+        self.group_regex = re.compile(r"^(?P<group>.+_v\d+)")
 
         # ---------- Layout ----------
         main_layout = QVBoxLayout(self)
@@ -121,14 +124,20 @@ class View(Base):
     def clear_tree(self):
         if isinstance(self.tree, QTreeWidget):
             self.entity = None
-            while self.tree.topLevelItemCount():
-                item = self.tree.takeTopLevelItem(0)
 
-                # Delete any widget set on this item
+            def _delete_item_widgets(item: QTreeWidgetItem):
+                # Recursively clear child widgets
+                for i in range(item.childCount() - 1, -1, -1):
+                    child = item.child(i)
+                    _delete_item_widgets(child)
                 widget = self.tree.itemWidget(item, 0)
                 if widget:
                     widget.setParent(None)
                     widget.deleteLater()
+
+            while self.tree.topLevelItemCount():
+                item = self.tree.takeTopLevelItem(0)
+                _delete_item_widgets(item)
                 del item
 
     def get_entity(self, path: Path) -> dict:
@@ -138,7 +147,43 @@ class View(Base):
         self.clear_tree()
         # ---------- Data ----------
         self.entity = entity
+
+        groups: OrderedDict[str, list[dict]] = OrderedDict()
+        unmatched: list[dict] = []
         for row in rows:
+            name = row.get("name", "")
+            # Use stem to strip extensions like .png/.mp4
+            try:
+                base = Path(name).stem
+            except Exception:  # noqa: BLE001
+                base = name
+            m = self.group_regex.match(base)
+            if m:
+                group_name = (m.groupdict().get("group") if m.groupdict() else None) or (
+                    m.group(1) if m.groups() else base
+                )
+                groups.setdefault(group_name, []).append(row)
+            else:
+                # Keep non-matching rows ungrouped (top-level)
+                unmatched.append(row)
+
+        for group_name, items in groups.items():
+            # If a group only contains a single item, add it as a top-level
+            # item instead of creating an unnecessary header.
+            if len(items) == 1:
+                self.add_row(items[0])
+                continue
+
+            header = QTreeWidgetItem([group_name])
+            # Make header non-selectable
+            header.setFlags(header.flags() & ~Qt.ItemIsSelectable)
+            self.tree.addTopLevelItem(header)
+            header.setExpanded(False)
+            for row in items:
+                self.add_row(row, parent_item=header)
+
+        # Add rows that didn't match the regex as top-level items
+        for row in unmatched:
             self.add_row(row)
 
         # ---------- UI Settings ----------
