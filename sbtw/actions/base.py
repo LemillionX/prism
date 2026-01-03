@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import os
 from abc import ABCMeta, abstractmethod
@@ -73,26 +75,34 @@ class AddEntityBase(ActionBase):
     def name(self) -> str:
         return f"Add {self.entity_type}"
 
-    def _execute(self, **kwargs: Any) -> None:
-        if (root := kwargs.get("root")) and (entity := kwargs.get("entity")):
-            entity_name, ok = QInputDialog.getText(None, self.entity_type, f"Enter {self.entity_type} name:")
-            entity_name = prettier(entity_name)
-            if ok:
-                try:
-                    # For Entities
-                    path: Path = root / EntityType[self.entity_type].value / entity_name
-                except KeyError:
-                    # For Tasks and others
-                    path: Path = root / kwargs.get("entity_type").value / entity / entity_name
+    def get_entity_name(self) -> str | None:
+        entity_name, ok = QInputDialog.getText(None, self.entity_type, f"Enter {self.entity_type} name:")
+        entity_name = prettier(entity_name)
+        if ok:
+            return entity_name
+        return None
 
-                # Add metadata file and create folder
-                meta = get_meta_path(path) / METADATA
-                meta.parent.mkdir(parents=True, exist_ok=True)
-                path.mkdir(exist_ok=True, parents=True)
-                meta.touch(exist_ok=True)
-                with meta.open(mode="w", encoding="utf8") as f:
-                    json.dump({"name": entity_name, "status": Status.WTG.name}, f, indent=4)
-                logger.info("%s created successfully", path.as_posix())
+    def _execute(self, **kwargs: Any) -> None:
+        if (
+            (root := kwargs.get("root"))
+            and (entity := kwargs.get("entity"))
+            and (entity_name := self.get_entity_name())
+        ):
+            try:
+                # For Entities
+                path: Path = root / EntityType[self.entity_type].value / entity_name
+            except KeyError:
+                # For Tasks and others
+                path: Path = root / kwargs.get("entity_type").value / entity / entity_name
+
+            # Add metadata file and create folder
+            meta = get_meta_path(path) / METADATA
+            meta.parent.mkdir(parents=True, exist_ok=True)
+            path.mkdir(exist_ok=True, parents=True)
+            meta.touch(exist_ok=True)
+            with meta.open(mode="w", encoding="utf8") as f:
+                json.dump({"name": entity_name, "status": Status.WTG.name}, f, indent=4)
+            logger.info("%s created successfully", path.as_posix())
 
     def post_run(self, **kwargs: Any):
         if view := (kwargs.get("view")):
