@@ -87,9 +87,10 @@ class Project:
 
     def get_tasks(self, entity: str, entity_type: EntityType = EntityType.Asset) -> list[dict]:
         tasks = []
+        print(entity, entity_type)
         for task in (self.root / entity_type.value / entity).glob("*"):
             metadata = self.get_task_metadata(task)
-            data = {"name": task.stem, "path": task}
+            data = {"name": task.stem, "path": task, "thumbnail": self.get_thumbnail(task)}
             data.update(metadata)
             data["status"] = Status[metadata.get("status", "WTG")].name
             tasks.append(data)

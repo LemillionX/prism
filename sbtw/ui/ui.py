@@ -97,22 +97,7 @@ class MainWindow(QMainWindow):
         self.manager.current_path = path
         element = self.manager.get_current_element()
 
-        if isinstance(sender, AssetsView):
-            self.browser.tasks_view.set_rows(
-                rows=self.manager.project.get_tasks(entity=element["entity"], entity_type=element["entity_type"])
-            )
-            self.browser.files_view.clear_tree()
-
-        if isinstance(sender, TasksView):
-            self.browser.files_view.set_rows(
-                rows=self.manager.project.get_files(
-                    task=element["task"],
-                    entity=element["entity"],
-                    entity_type=element["entity_type"],
-                )
-            )
-
-        if isinstance(sender, FilesView):
+        if isinstance(sender, (FilesView, TasksView)) and element.get("task") and element.get("entity"):
             self.browser.files_view.set_rows(
                 rows=self.manager.project.get_files(
                     task=element["task"],
@@ -121,20 +106,15 @@ class MainWindow(QMainWindow):
                 ),
             )
 
+        if isinstance(sender, AssetsView):
+            self.browser.tasks_view.set_rows(
+                rows=self.manager.project.get_tasks(entity=element["entity"], entity_type=element["entity_type"])
+            )
+            self.browser.files_view.clear_tree()
+
     def on_view_updated(self, sender: QObject, path: Path):
         self.manager.current_path = path
         element = self.manager.get_current_element()
-
-        if isinstance(sender, AssetsView):
-            self.on_project_clicked(self.manager.project.name)
-
-        if isinstance(sender, TasksView) or (isinstance(sender, RefreshLabel) and element.get("entity")):
-            self.browser.tasks_view.set_rows(
-                rows=self.manager.project.get_tasks(
-                    entity=element["entity"],
-                    entity_type=element["entity_type"],
-                )
-            )
 
         if isinstance(sender, FilesView) or (isinstance(sender, RefreshLabel) and element.get("task")):
             self.browser.files_view.set_rows(
@@ -144,6 +124,17 @@ class MainWindow(QMainWindow):
                     entity_type=element["entity_type"],
                 )
             )
+
+        elif isinstance(sender, (TasksView, RefreshLabel)) and element.get("entity"):
+            self.browser.tasks_view.set_rows(
+                rows=self.manager.project.get_tasks(
+                    entity=element["entity"],
+                    entity_type=element["entity_type"],
+                )
+            )
+
+        elif isinstance(sender, AssetsView):
+            self.on_project_clicked(self.manager.project.name)
 
 
 if __name__ == "__main__":
