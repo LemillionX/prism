@@ -1,5 +1,4 @@
 import sys
-from pathlib import Path
 
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QColor, QPixmap
