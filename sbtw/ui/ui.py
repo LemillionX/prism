@@ -10,7 +10,7 @@ from sbtw.core.constant import EntityType
 from sbtw.core.log import NAME, logger
 from sbtw.core.manager import ProjectManager
 from sbtw.ui.browser import Browser
-from sbtw.ui.entity import AssetsView, EntitiesView, ShotsView
+from sbtw.ui.entity import EntitiesView
 from sbtw.ui.files import FilesView
 from sbtw.ui.header import Footer, Header
 from sbtw.ui.label import RefreshLabel
