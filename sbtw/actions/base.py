@@ -74,21 +74,21 @@ class AddEntityBase(ActionBase):
         return f"Add {self.entity_type}"
 
     def _execute(self, **kwargs: Any) -> None:
-        if path := kwargs.get("path"):
+        if (root := kwargs.get("root")) and (entity := kwargs.get("entity")):
             entity_name, ok = QInputDialog.getText(None, self.entity_type, f"Enter {self.entity_type} name:")
             entity_name = prettier(entity_name)
             if ok:
                 try:
                     # For Entities
-                    entity: Path = path / EntityType[self.entity_type].value / entity_name
+                    path: Path = root / EntityType[self.entity_type].value / entity_name
                 except KeyError:
                     # For Tasks and others
-                    entity: Path = path / entity_name
+                    path: Path = root / kwargs.get("entity_type").value / entity / entity_name
 
                 # Add metadata file and create folder
-                meta = get_meta_path(entity) / METADATA
+                meta = get_meta_path(path) / METADATA
                 meta.parent.mkdir(parents=True, exist_ok=True)
-                entity.mkdir(exist_ok=True, parents=True)
+                path.mkdir(exist_ok=True, parents=True)
                 meta.touch(exist_ok=True)
                 with meta.open(mode="w", encoding="utf8") as f:
                     json.dump({"name": entity_name, "status": Status.WTG.name}, f, indent=4)

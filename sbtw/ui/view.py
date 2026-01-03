@@ -11,6 +11,7 @@ from qtpy.QtWidgets import QAction, QMenu, QSizePolicy, QTreeWidget, QTreeWidget
 
 from sbtw.actions.base import MenuBase
 from sbtw.core.log import logger
+from sbtw.core.manager import ProjectManager
 from sbtw.ui.row import Row
 
 if TYPE_CHECKING:
@@ -74,7 +75,6 @@ class View(Base):
         # ---------- Variables ----------
         self.keys = {"name"}
         self.keys.update(keys or {})
-        self.entity = None
         self.group_regex = re.compile(r"^(?P<group>.+_v\d+)")
 
         # ---------- Layout ----------
@@ -159,7 +159,6 @@ class View(Base):
 
     def clear_tree(self):
         if isinstance(self.tree, QTreeWidget):
-            self.entity = None
 
             def _delete_item_widgets(item: QTreeWidgetItem) -> None:
                 # Recursively clear child widgets
@@ -179,10 +178,8 @@ class View(Base):
     def get_entity(self, path: Path) -> dict:
         return {"name": path.parent.stem, "path": path.parent}
 
-    def set_rows(self, rows: list[dict], entity: dict | None = None):
+    def set_rows(self, rows: list[dict]):
         self.clear_tree()
-        # ---------- Data ----------
-        self.entity = entity
 
         groups: OrderedDict[str, list[dict]] = OrderedDict()
         unmatched: list[dict] = []
@@ -247,7 +244,8 @@ class View(Base):
             self.add_actions(menu, actions, data={**row.data, "is_element": True})
         else:
             # Menu for the view
-            self.add_actions(menu, actions, data=self.entity)
+            manager = ProjectManager()
+            self.add_actions(menu, actions, data=manager.get_current_element())
 
         # Show menu at the global position
         menu.exec(self.tree.viewport().mapToGlobal(pos))

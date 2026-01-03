@@ -26,6 +26,14 @@ rotating_handler.setFormatter(formatter)
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(formatter)
 
-logger.addHandler(rotating_handler)
-logger.addHandler(console_handler)
+# Add handlers only if they are not already present to avoid duplicate logging
+if not logger.handlers:
+    logger.addHandler(rotating_handler)
+    logger.addHandler(console_handler)
+else:
+    if not any(isinstance(h, RotatingFileHandler) for h in logger.handlers):
+        logger.addHandler(rotating_handler)
+    if not any(isinstance(h, logging.StreamHandler) for h in logger.handlers):
+        logger.addHandler(console_handler)
+
 logger.propagate = False

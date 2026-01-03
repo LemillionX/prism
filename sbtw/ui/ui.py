@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, manager: ProjectManager | None = None):
+    def __init__(self):
         super().__init__()
         # ------------- UI  Settings -------------
         self.setWindowTitle(f"{NAME} - v{__version__}")
@@ -30,8 +30,7 @@ class MainWindow(QMainWindow):
         self.resize(1200, 500)
 
         # ------------- Variables -------------
-        self.manager = manager or ProjectManager()
-        config = self.manager.get_config()
+        self.manager = ProjectManager()
 
         # ------------- Layout -------------
         widget = QWidget(self)
@@ -40,7 +39,7 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout(widget)
 
         # ------------- Header -------------
-        self.header = Header(name=config.get("username"), projects=self.manager.get_projects(), parent=self)
+        self.header = Header(name=self.manager.username, projects=self.manager.get_projects(), parent=self)
         main_layout.addWidget(self.header, stretch=1)
 
         # ------------- Browser -------------
@@ -73,7 +72,6 @@ class MainWindow(QMainWindow):
         self.header.projects_view.set_projects(self.manager.get_projects())
         self.browser.assets_view.set_rows(
             rows=self.manager.project.get_entities(),
-            entity={"name": project, "path": self.manager.project.root},
         )
         self.browser.tasks_view.clear_tree()
         self.browser.files_view.clear_tree()
@@ -93,56 +91,55 @@ class MainWindow(QMainWindow):
         if not path:
             return
 
-        tokens = path.parts
+        self.manager.current_path = path
+        element = self.manager.get_current_element()
+
         if isinstance(sender, AssetsView):
             self.browser.tasks_view.set_rows(
-                rows=self.manager.project.get_tasks(entity=tokens[-1], entity_type=EntityType(tokens[-2])),
-                entity={"name": tokens[-1], "path": path, "username": self.header.name},
+                rows=self.manager.project.get_tasks(entity=element["entity"], entity_type=element["entity_type"])
             )
             self.browser.files_view.clear_tree()
 
         if isinstance(sender, TasksView):
             self.browser.files_view.set_rows(
                 rows=self.manager.project.get_files(
-                    task=tokens[-1],
-                    entity=tokens[-2],
-                    entity_type=EntityType(tokens[-3]),
-                ),
-                entity={"name": tokens[-1], "path": path, "username": self.header.name},
+                    task=element["task"],
+                    entity=element["entity"],
+                    entity_type=element["entity_type"],
+                )
             )
 
         if isinstance(sender, FilesView):
             self.browser.files_view.set_rows(
                 rows=self.manager.project.get_files(
-                    task=tokens[-2],
-                    entity=tokens[-3],
-                    entity_type=EntityType(tokens[-4]),
+                    task=element["task"],
+                    entity=element["entity"],
+                    entity_type=element["entity_type"],
                 ),
-                entity={"name": tokens[-2], "path": path.parent, "username": self.header.name},
             )
 
     def on_view_updated(self, sender: QObject, path: Path):
-        tokens = path.parts
+        self.manager.current_path = path
+        element = self.manager.get_current_element()
+
         if isinstance(sender, AssetsView):
-            self.on_project_clicked(tokens[-1])
+            self.on_project_clicked(self.manager.project.name)
 
         if isinstance(sender, TasksView):
             self.browser.tasks_view.set_rows(
                 rows=self.manager.project.get_tasks(
-                    entity=tokens[-1],
-                    entity_type=EntityType(tokens[-2]),
-                ),
-                entity={"name": tokens[-1], "path": path, "username": self.header.name},
+                    entity=element["entity"],
+                    entity_type=element["entity_type"],
+                )
             )
 
         if isinstance(sender, FilesView):
             self.browser.files_view.set_rows(
                 rows=self.manager.project.get_files(
-                    task=tokens[-2],
-                    entity=tokens[-3],
-                    entity_type=EntityType(tokens[-4]),
-                ),
-                entity={"name": tokens[-2], "path": path.parent, "username": self.header.name},
+                    task=element["task"],
+                    entity=element["entity"],
+                    entity_type=element["entity_type"],
+                )
             )
 
 

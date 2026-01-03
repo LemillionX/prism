@@ -67,12 +67,13 @@ class UserLabel(Label):
         self.clicked.connect(self.set_name)
 
     def set_name(self):
-        name, ok = QInputDialog.getText(None, "Change Username", "Username:", text=self.label.text())
+        username, ok = QInputDialog.getText(None, "Change Username", "Username:", text=self.label.text())
         if ok:
             manager = ProjectManager()
-            manager.save_config(username=name)
-            self.label.setText(name)
-            self.text_updated.emit(name)
+            manager.username = username
+            manager.save_config(username=username)
+            self.label.setText(username)
+            self.text_updated.emit(username)
 
 
 class RefreshLabel(Label):
