@@ -5,7 +5,7 @@ a = Analysis(
     ['sbtw\\main.py'],
     pathex=[],
     binaries=[],
-    datas=[('sbtw/medias', 'sbtw/medias')],
+    datas=[('sbtw/medias', 'sbtw/medias'), ('sbtw/style', 'sbtw/style')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

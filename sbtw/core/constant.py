@@ -7,7 +7,8 @@ from enum import Enum
 from pathlib import Path
 
 # -------------------- Medias --------------------
-MEDIAS_FOLDER = Path(__file__).parent.parent.resolve() / "medias"
+BASE_FOLDER = Path(__file__).parent.parent.resolve()
+MEDIAS_FOLDER = BASE_FOLDER / "medias"
 APP_ICON = MEDIAS_FOLDER / "sbtw-icon.ico"
 DEFAULT_THUMBNAIL = MEDIAS_FOLDER / "default-thumbnail.png"
 USER_THUMBNAIL = MEDIAS_FOLDER / "user-thumbnail.png"
@@ -17,6 +18,7 @@ PLUS_ICON = MEDIAS_FOLDER / "plus-icon.png"
 BROWSER_EXPLORER_ICON = MEDIAS_FOLDER / "browse-explorer-icon.png"
 SPLASH_SCREEN = MEDIAS_FOLDER / "splash-screen.png"
 LOG_THUMBNAIL = MEDIAS_FOLDER / "log-thumbnail.png"
+STYLESHEET = BASE_FOLDER / "style" / "dark.qss"
 
 # -------------------- Folders --------------------
 APPDATA = Path(os.getenv("APPDATA"), "sbtw")
