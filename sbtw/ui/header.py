@@ -28,17 +28,17 @@ class Header(QWidget):
 
         # ------------- User -------------
         main_layout.addStretch()
-        user_label = UserLabel(name=self.name, parent=self)
-        user_label.text_updated.connect(self.set_name)
-        main_layout.addWidget(user_label, alignment=Qt.AlignmentFlag.AlignRight)
+        user_btn = UserLabel(name=self.name, parent=self)
+        user_btn.text_updated.connect(self.set_name)
+        main_layout.addWidget(user_btn, alignment=Qt.AlignmentFlag.AlignRight)
         # ------------- Projects -------------
         self.projects_label = ProjectsLabel(parent=self)
         self.projects_label.clicked.connect(self.toggle_projects_grid)
         self.projects_view = ProjectsView(projects=self.projects, actions=ACTIONS, parent=None)
         main_layout.addWidget(self.projects_label, alignment=Qt.AlignmentFlag.AlignRight)
         # ------------- Refresh -------------
-        refresh_icon = RefreshLabel()
-        main_layout.addWidget(refresh_icon, alignment=Qt.AlignmentFlag.AlignRight)
+        self.refresh_btn = RefreshLabel()
+        main_layout.addWidget(self.refresh_btn, alignment=Qt.AlignmentFlag.AlignRight)
         # ------------- Open Logs -------------
         logs_btn = LogLabel(parent=self)
         main_layout.addWidget(logs_btn, alignment=Qt.AlignmentFlag.AlignRight)

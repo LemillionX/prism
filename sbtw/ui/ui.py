@@ -12,6 +12,7 @@ from sbtw.ui.assets import AssetsView
 from sbtw.ui.browser import Browser
 from sbtw.ui.files import FilesView
 from sbtw.ui.header import Footer, Header
+from sbtw.ui.label import RefreshLabel
 from sbtw.ui.tasks import TasksView
 
 if TYPE_CHECKING:
@@ -56,6 +57,9 @@ class MainWindow(QMainWindow):
         self.header.projects_view.project_clicked.connect(self.header.project_label.set_project)
         self.header.projects_view.project_opened.connect(self.on_project_opened)
         self.header.projects_view.project_removed.connect(self.on_project_removed)
+        self.header.refresh_btn.clicked.connect(
+            lambda: self.on_view_updated(self.header.refresh_btn, self.manager.current_path)
+        )
         self.browser.row_selected.connect(self.on_row_selected)
         self.browser.row_clicked.connect(self.on_row_clicked)
         self.browser.assets_view.updated.connect(self.on_view_updated)
@@ -124,7 +128,7 @@ class MainWindow(QMainWindow):
         if isinstance(sender, AssetsView):
             self.on_project_clicked(self.manager.project.name)
 
-        if isinstance(sender, TasksView):
+        if isinstance(sender, TasksView) or (isinstance(sender, RefreshLabel) and element.get("entity")):
             self.browser.tasks_view.set_rows(
                 rows=self.manager.project.get_tasks(
                     entity=element["entity"],
@@ -132,7 +136,7 @@ class MainWindow(QMainWindow):
                 )
             )
 
-        if isinstance(sender, FilesView):
+        if isinstance(sender, FilesView) or (isinstance(sender, RefreshLabel) and element.get("task")):
             self.browser.files_view.set_rows(
                 rows=self.manager.project.get_files(
                     task=element["task"],

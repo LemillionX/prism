@@ -92,6 +92,7 @@ class AddEntityBase(ActionBase):
                 meta.touch(exist_ok=True)
                 with meta.open(mode="w", encoding="utf8") as f:
                     json.dump({"name": entity_name, "status": Status.WTG.name}, f, indent=4)
+                logger.info("%s created successfully", path.as_posix())
 
     def post_run(self, **kwargs: Any):
         if view := (kwargs.get("view")):
