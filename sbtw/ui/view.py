@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from collections import OrderedDict
 from functools import partial
 from pathlib import Path
@@ -75,7 +74,6 @@ class View(Base):
         # ---------- Variables ----------
         self.keys = {"name"}
         self.keys.update(keys or {})
-        self.group_regex = re.compile(r"^(?P<group>.+_v\d+)")
 
         # ---------- Layout ----------
         main_layout = QVBoxLayout(self)
@@ -182,23 +180,9 @@ class View(Base):
         self.clear_tree()
 
         groups: OrderedDict[str, list[dict]] = OrderedDict()
-        unmatched: list[dict] = []
         for row in rows:
-            name = row.get("name", "")
-            # Use stem to strip extensions like .png/.mp4
-            try:
-                base = Path(name).stem
-            except Exception:  # noqa: BLE001
-                base = name
-            m = self.group_regex.match(base)
-            if m:
-                group_name = (m.groupdict().get("group") if m.groupdict() else None) or (
-                    m.group(1) if m.groups() else base
-                )
-                groups.setdefault(group_name, []).append(row)
-            else:
-                # Keep non-matching rows ungrouped (top-level)
-                unmatched.append(row)
+            path = Path(row.get("name", ""))
+            groups.setdefault(path.name.removesuffix("".join(path.suffixes)), []).append(row)
 
         for group_name, items in groups.items():
             # If a group only contains a single item, add it as a top-level
@@ -214,10 +198,6 @@ class View(Base):
             header.setExpanded(False)
             for row in items:
                 self.add_row(row, parent_item=header)
-
-        # Add rows that didn't match the regex as top-level items
-        for row in unmatched:
-            self.add_row(row)
 
         # ---------- UI Settings ----------
         self.setSizePolicy(
