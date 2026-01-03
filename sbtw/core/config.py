@@ -1,6 +1,6 @@
 from sbtw.actions.base import OpenInExplorer
 from sbtw.actions.entity import AddAsset, AddShot
-from sbtw.actions.files import Increment
+from sbtw.actions.files import Increment, ReleaseBase
 from sbtw.actions.projects import RemoveProject
 from sbtw.actions.tasks import AddTask, BuildScene, EditStatus, SetStatus
 from sbtw.actions.thumbnail import CaptureThumbnail, SetThumbnail
@@ -10,7 +10,7 @@ ACTIONS = {
     "Base": [OpenInExplorer(), SetThumbnail(), CaptureThumbnail()],
     "AssetsView": [AddAsset(), OpenInExplorer()],
     "ShotsView": [AddShot(), OpenInExplorer()],
-    "FilesBase": [Increment()],
+    "FilesBase": [Increment(), ReleaseBase()],
     "TasksBase": [EditStatus(actions=[SetStatus(status) for status in Status])],
     "TasksView": [AddTask(), OpenInExplorer()],
     "FilesView": [OpenInExplorer()],

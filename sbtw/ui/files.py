@@ -67,9 +67,9 @@ class FilesView(View):
             suffix = ""
             ext = path.suffix.lstrip(".")
             # Try to detect a trailing numeric suffix like `.1001.ext`
-            if m2 := RE_FILE.match(path.name):
-                suffix = m2.group("suffix") or ""
-                ext = m2.group("ext")
+            if m := RE_FILE.match(path.name):
+                suffix = m.group("suffix") or ""
+                ext = m.group("ext")
 
             template = file.with_name(f"{file.name}{suffix}.{ext}")
             logger.info("Conforming %s Using template %s", path.as_posix(), template.as_posix())
