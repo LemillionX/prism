@@ -6,10 +6,11 @@ from typing import TYPE_CHECKING
 from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
 from sbtw._version import __version__
+from sbtw.core.constant import EntityType
 from sbtw.core.log import NAME, logger
 from sbtw.core.manager import ProjectManager
-from sbtw.ui.assets import AssetsView
 from sbtw.ui.browser import Browser
+from sbtw.ui.entity import AssetsView, EntitiesView, ShotsView
 from sbtw.ui.files import FilesView
 from sbtw.ui.header import Footer, Header
 from sbtw.ui.label import RefreshLabel
@@ -63,8 +64,12 @@ class MainWindow(QMainWindow):
         self.browser.row_selected.connect(self.on_row_selected)
         self.browser.row_clicked.connect(self.on_row_clicked)
         self.browser.assets_view.updated.connect(self.on_view_updated)
+        self.browser.shots_view.updated.connect(self.on_view_updated)
         self.browser.files_view.updated.connect(self.on_view_updated)
         self.browser.tasks_view.updated.connect(self.on_view_updated)
+        self.browser.entity_tabs.currentChanged.connect(
+            lambda _: self.on_project_clicked(self.manager.project.name) if self.manager.project else None
+        )
 
     def on_project_opened(self):
         logger.info("Opening %s ...", self.manager.project.root.parent.as_posix())
@@ -73,9 +78,11 @@ class MainWindow(QMainWindow):
     def on_project_clicked(self, project: str):
         self.manager.set_project(project)
         self.header.projects_view.set_projects(self.manager.get_projects())
-        self.browser.assets_view.set_rows(
-            rows=self.manager.project.get_entities(),
-        )
+        entity_type = self.browser.get_current_entity_type()
+        if entity_type == EntityType.Asset:
+            self.browser.assets_view.set_rows(rows=self.manager.project.get_entities(entity_type=entity_type))
+        if entity_type == EntityType.Shot:
+            self.browser.shots_view.set_rows(rows=self.manager.project.get_entities(entity_type=entity_type))
         self.browser.tasks_view.clear_tree()
         self.browser.files_view.clear_tree()
 
@@ -106,7 +113,7 @@ class MainWindow(QMainWindow):
                 ),
             )
 
-        if isinstance(sender, AssetsView):
+        if isinstance(sender, EntitiesView) and element.get("entity"):
             self.browser.tasks_view.set_rows(
                 rows=self.manager.project.get_tasks(entity=element["entity"], entity_type=element["entity_type"])
             )
@@ -133,7 +140,7 @@ class MainWindow(QMainWindow):
                 )
             )
 
-        elif isinstance(sender, AssetsView):
+        elif isinstance(sender, EntitiesView):
             self.on_project_clicked(self.manager.project.name)
 
 

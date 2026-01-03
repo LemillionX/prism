@@ -74,7 +74,7 @@ class Project:
             (self.meta / folder).mkdir(parents=True, exist_ok=True)
         logger.info("Project %s created !", self.name)
 
-    def get_entities(self, entity_type: EntityType = EntityType.Asset) -> list[dict]:
+    def get_entities(self, entity_type: EntityType) -> list[dict]:
         return [
             {
                 "name": asset.stem,
@@ -85,7 +85,7 @@ class Project:
             for asset in (self.root / entity_type.value).glob("*")
         ]
 
-    def get_tasks(self, entity: str, entity_type: EntityType = EntityType.Asset) -> list[dict]:
+    def get_tasks(self, entity: str, entity_type: EntityType) -> list[dict]:
         tasks = []
         for task in (self.root / entity_type.value / entity).glob("*"):
             metadata = self.get_task_metadata(task)
@@ -96,7 +96,7 @@ class Project:
 
         return tasks
 
-    def get_files(self, task: str, entity: str, entity_type: EntityType = EntityType.Asset) -> list[dict]:
+    def get_files(self, task: str, entity: str, entity_type: EntityType) -> list[dict]:
         files = []
         for file in sorted((self.root / entity_type.value / entity / task).glob("*"), reverse=True):
             data = {

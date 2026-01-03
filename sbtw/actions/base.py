@@ -83,17 +83,16 @@ class AddEntityBase(ActionBase):
         return None
 
     def _execute(self, **kwargs: Any) -> None:
-        if (
-            (root := kwargs.get("root"))
-            and (entity := kwargs.get("entity"))
-            and (entity_name := self.get_entity_name())
-        ):
+        if (root := kwargs.get("root")) and (entity_name := self.get_entity_name()):
             try:
                 # For Entities
                 path: Path = root / EntityType[self.entity_type].value / entity_name
             except KeyError:
                 # For Tasks and others
-                path: Path = root / kwargs.get("entity_type").value / entity / entity_name
+                if entity := kwargs.get("entity"):
+                    path: Path = root / kwargs.get("entity_type").value / entity / entity_name
+                else:
+                    return
 
             # Add metadata file and create folder
             meta = get_meta_path(path) / METADATA

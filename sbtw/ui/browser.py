@@ -3,10 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from qtpy.QtCore import QObject, Qt, Signal
-from qtpy.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QSplitter, QWidget
+from qtpy.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QSplitter, QTabWidget, QWidget
 
 from sbtw.core.config import ACTIONS
-from sbtw.ui.assets import AssetsView
+from sbtw.core.constant import EntityType
+from sbtw.ui.entity import AssetsView, ShotsView
 from sbtw.ui.files import FilesView
 from sbtw.ui.tasks import TasksView
 from sbtw.ui.view import View
@@ -31,7 +32,13 @@ class Browser(QWidget):
 
         # ---------- Entity ----------
         self.assets_view = AssetsView(rows=data, actions=ACTIONS, parent=self)
-        splitter.addWidget(self.assets_view)
+        self.shots_view = ShotsView(rows=data, actions=ACTIONS, parent=self)
+
+        tabs = QTabWidget()
+        tabs.addTab(self.assets_view, "Assets")
+        tabs.addTab(self.shots_view, "Shots")
+        self.entity_tabs = tabs
+        splitter.addWidget(tabs)
 
         # ---------- Tasks ----------
         self.tasks_view = TasksView(actions=ACTIONS, parent=self)
@@ -57,6 +64,7 @@ class Browser(QWidget):
 
         # ---------- Connections ----------
         self.assets_view.row_selected.connect(self.on_row_selected)
+        self.shots_view.row_selected.connect(self.on_row_selected)
         self.tasks_view.row_selected.connect(self.on_row_selected)
         self.files_view.row_selected.connect(self.on_row_selected)
         self.files_view.row_clicked.connect(self.on_row_clicked)
@@ -71,8 +79,15 @@ class Browser(QWidget):
 
     def set_thumbnail_size(self, size_multiplier: int):
         self.assets_view.set_thumbnail_size(size_multiplier)
+        self.shots_view.set_thumbnail_size(size_multiplier)
         self.tasks_view.set_thumbnail_size(size_multiplier)
         self.files_view.set_thumbnail_size(size_multiplier)
+
+    def get_current_entity_type(self) -> EntityType:
+        widget = self.entity_tabs.currentWidget()
+        if widget is self.shots_view:
+            return EntityType.Shot
+        return EntityType.Asset
 
 
 if __name__ == "__main__":
