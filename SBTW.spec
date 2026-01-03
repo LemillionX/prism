@@ -23,6 +23,7 @@ exe = EXE(
     a.datas,
     [],
     name='SBTW',
+    icon='sbtw/medias/sbtw-icon.ico',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

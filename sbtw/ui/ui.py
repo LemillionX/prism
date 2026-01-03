@@ -3,10 +3,11 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
+from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
 from sbtw._version import __version__
-from sbtw.core.constant import EntityType
+from sbtw.core.constant import APP_ICON, EntityType
 from sbtw.core.log import NAME, logger
 from sbtw.core.manager import ProjectManager
 from sbtw.ui.browser import Browser
@@ -26,6 +27,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         # ------------- UI  Settings -------------
+        self.setWindowIcon(QIcon(APP_ICON.as_posix()))
         self.setWindowTitle(f"{NAME} - v{__version__}")
         self.setMinimumSize(800, 500)
         self.resize(1200, 500)

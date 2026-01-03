@@ -16,7 +16,7 @@ def launch():
 
     # ------------- Splash Screen -------------
     splash_pix = QPixmap(SPLASH_SCREEN).scaled(
-        1280,
+        720,
         720,
         Qt.KeepAspectRatioByExpanding,
         Qt.SmoothTransformation,

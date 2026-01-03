@@ -6,6 +6,7 @@ from pathlib import Path
 
 # -------------------- Medias --------------------
 MEDIAS_FOLDER = Path(__file__).parent.parent.resolve() / "medias"
+APP_ICON = MEDIAS_FOLDER / "sbtw-icon.ico"
 DEFAULT_THUMBNAIL = MEDIAS_FOLDER / "default-thumbnail.png"
 USER_THUMBNAIL = MEDIAS_FOLDER / "user-thumbnail.png"
 PROJECTS_THUMBNAIL = MEDIAS_FOLDER / "project-thumbnail.png"
