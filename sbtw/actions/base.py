@@ -112,4 +112,10 @@ class OpenInExplorer(ActionBase):
 
     def _execute(self, **kwargs: Any) -> None:
         path = Path(kwargs.get("path"))
-        os.startfile(path.parent)
+        if kwargs.get("is_element"):
+            os.startfile(path.parent)
+        else:
+            os.startfile(path)
+
+    def post_run(self, **kwargs: Any):
+        pass

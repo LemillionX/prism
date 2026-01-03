@@ -8,10 +8,11 @@ from sbtw.core.constant import Status
 
 ACTIONS = {
     "Base": [OpenInExplorer(), SetThumbnail(), CaptureThumbnail()],
-    "AssetsView": [AddAsset()],
+    "AssetsView": [AddAsset(), OpenInExplorer()],
     "FilesBase": [Increment()],
     "TasksBase": [EditStatus(actions=[SetStatus(status) for status in Status])],
-    "TasksView": [AddTask()],
+    "TasksView": [AddTask(), OpenInExplorer()],
+    "FilesView": [OpenInExplorer()],
     "ProjectBase": [RemoveProject()],
     "Modeling": [BuildScene()],
 }
