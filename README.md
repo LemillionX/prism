@@ -23,18 +23,23 @@ A GUI-based project manager designed for creative workflows, built with PySide6 
 
 1. Clone or download the project
 2. Create a virtual environment:
+
    ```bash
    python -m venv .venv
    ```
+
 3. Activate the virtual environment:
    - Windows: `.venv\Scripts\activate`
    - macOS/Linux: `source .venv/bin/activate`
 4. Install dependencies:
-    - Using pip 
+    - Using pip
+
    ```bash
    pip install -e .
    ```
+
     - Using uv
+
     ```bash
     uv sync
     ```
@@ -51,11 +56,13 @@ A GUI-based project manager designed for creative workflows, built with PySide6 
 After installation, you can run SBTW in several ways:
 
 1. **Direct execution**:
+
    ```bash
    python -m sbtw.main
    ```
 
 2. **Using the script**:
+
    ```bash
    sbtw
    ```
@@ -79,8 +86,9 @@ After installation, you can run SBTW in several ways:
 To create a standalone executable using PyInstaller:
 
 After activating the virtual environment:
+
 ```bash
-pyinstaller --onefile --windowed --clean --name SBTW --add-data "sbtw/medias;sbtw/medias" sbtw\main.py
+pyinstaller .\SBTW.spec
 ```
 
 This will generate a single executable file named `SBTW.exe` (Windows) or `SBTW` (macOS/Linux) in the `dist/` directory.

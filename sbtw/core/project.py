@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from sbtw.actions.utils import format_size, get_path_before_keyword
-from sbtw.core.constant import CONFIG, DEFAULT_THUMBNAIL, METADATA, EntityType, Status
+from sbtw.core.constant import CONFIG, DEFAULT_THUMBNAIL, METADATA, SOFTWARES, EntityType, Status
 from sbtw.core.log import logger
 
 
@@ -74,7 +74,7 @@ class Project:
             (self.meta / folder).mkdir(parents=True, exist_ok=True)
         logger.info("Project %s created !", self.name)
 
-    def get_entities(self, entity_type: EntityType = EntityType.Asset) -> list[dict]:
+    def get_entities(self, entity_type: EntityType) -> list[dict]:
         return [
             {
                 "name": asset.stem,
@@ -85,31 +85,30 @@ class Project:
             for asset in (self.root / entity_type.value).glob("*")
         ]
 
-    def get_tasks(self, entity: str, entity_type: EntityType = EntityType.Asset) -> list[dict]:
+    def get_tasks(self, entity: str, entity_type: EntityType) -> list[dict]:
         tasks = []
         for task in (self.root / entity_type.value / entity).glob("*"):
             metadata = self.get_task_metadata(task)
-            data = {"name": task.stem, "path": task}
+            data = {"name": task.stem, "path": task, "thumbnail": self.get_thumbnail(task)}
             data.update(metadata)
             data["status"] = Status[metadata.get("status", "WTG")].name
             tasks.append(data)
 
         return tasks
 
-    def get_files(self, task: str, entity: str, entity_type: EntityType = EntityType.Asset) -> list[dict]:
+    def get_files(self, task: str, entity: str, entity_type: EntityType) -> list[dict]:
         files = []
         for file in sorted((self.root / entity_type.value / entity / task).glob("*"), reverse=True):
             data = {
                 "name": file.name,
                 "path": file,
                 "author": None,
-                "status": None,
+                "icon": self.get_software(file),
                 "thumbnail": self.get_thumbnail(file),
                 "date": datetime.fromtimestamp(file.stat().st_mtime, tz=timezone.utc).strftime("%Y-%m-%d %H:%M"),
                 "size": format_size(file.stat().st_size),
             }
             metadata = self.get_file_metadata(file)
-            data["status"] = Status[metadata.get("status", "WTG")].name
             data["author"] = metadata.get("author", "Unknown Author")
             files.append(data)
 
@@ -129,6 +128,9 @@ class Project:
             return thumbnail
 
         return DEFAULT_THUMBNAIL
+
+    def get_software(self, file: Path) -> list[Path]:
+        return SOFTWARES.get(file.suffix.lower(), [])
 
     def get_project(self, path: Path):
         root = get_path_before_keyword(

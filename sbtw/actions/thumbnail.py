@@ -44,10 +44,7 @@ class SetThumbnail(ActionBase):
 
     def post_run(self, **kwargs: Any):
         if (view := (kwargs.get("view"))) and hasattr(view, "updated"):
-            path = Path(kwargs.get("path"))
-            if path.is_dir():
-                path = path.parent.parent
-            view.updated.emit(view, path)
+            view.updated.emit(view, Path(kwargs.get("path")))
 
 
 def take_screenshot_area(output: Path) -> None:

@@ -156,7 +156,7 @@ class ProjectsView(QWidget):
 
 class ProjectsLabel(Label):
     def __init__(self, parent: QWidget | None = None):
-        super().__init__(text="Projects", icon=PROJECTS_THUMBNAIL, parent=parent)
+        super().__init__(text="Projects", icon=PROJECTS_THUMBNAIL, size=40, parent=parent)
 
 
 class ProjectView(Base):
@@ -279,6 +279,15 @@ class ProjectForm(QDialog):
 
     def get_projects_data(self) -> tuple[str, Path]:
         return self.name.text(), Path(self.path_edit.text() or "C:/", self.name.text())
+
+
+class ProjectLabel(Label):
+    def __init__(self, parent: QWidget | None = None):
+        super().__init__(text='Choose a project in "Projects" tabs', icon=PROJECTS_THUMBNAIL, size=70, parent=parent)
+
+    def set_project(self, name: str):
+        self.set_text(f"Current Project:\n {name}")
+        self.set_icon(ProjectManager().get_projects(to_dict=True).get(name).get("thumbnail", PROJECTS_THUMBNAIL))
 
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from sbtw.ui.row import Row
 
 
-class AssetsView(View):
+class EntitiesView(View):
     def __init__(
         self,
         rows: list[dict] | None = None,
@@ -58,6 +58,26 @@ class AssetsView(View):
         return visible
 
 
+class AssetsView(EntitiesView):
+    def __init__(
+        self,
+        rows: list[dict] | None = None,
+        actions: dict | None = None,
+        parent: QWidget | None = None,
+    ):
+        super().__init__(rows=rows, actions=actions, parent=parent)
+
+
+class ShotsView(EntitiesView):
+    def __init__(
+        self,
+        rows: list[dict] | None = None,
+        actions: dict | None = None,
+        parent: QWidget | None = None,
+    ):
+        super().__init__(rows=rows, actions=actions, parent=parent)
+
+
 if __name__ == "__main__":
     import sys
 
@@ -73,7 +93,7 @@ if __name__ == "__main__":
         for i in range(20)
     ]
 
-    view = AssetsView(rows=_data)
+    view = EntitiesView(rows=_data)
     view.show()
 
     sys.exit(app.exec())

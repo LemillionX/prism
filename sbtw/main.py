@@ -5,7 +5,7 @@ from qtpy.QtGui import QColor, QPixmap
 from qtpy.QtWidgets import QApplication, QSplashScreen
 
 from sbtw._version import __version__
-from sbtw.core.constant import SPLASH_SCREEN
+from sbtw.core.constant import SPLASH_SCREEN, STYLESHEET
 from sbtw.core.log import NAME, logger
 from sbtw.ui.ui import MainWindow
 
@@ -14,9 +14,14 @@ def launch():
     logger.info("Launching %s v%s ...", NAME, __version__)
     app = QApplication(sys.argv)
 
+    try:
+        if STYLESHEET.exists():
+            app.setStyleSheet(STYLESHEET.read_text(encoding="utf8"))
+    except (OSError, UnicodeDecodeError) as e:
+        logger.warning("Could not load stylesheet %s: %s", STYLESHEET.as_posix(), e)
     # ------------- Splash Screen -------------
     splash_pix = QPixmap(SPLASH_SCREEN).scaled(
-        1280,
+        720,
         720,
         Qt.KeepAspectRatioByExpanding,
         Qt.SmoothTransformation,
