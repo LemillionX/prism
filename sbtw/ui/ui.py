@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
 from sbtw._version import __version__
-from sbtw.core.constant import EntityType
 from sbtw.core.log import NAME, logger
 from sbtw.core.manager import ProjectManager
 from sbtw.ui.assets import AssetsView
