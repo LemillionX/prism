@@ -5,12 +5,30 @@ from pathlib import Path
 
 from sbtw.core.log import logger
 
-RE_VERSION = re.compile(r"^(.+_v)(?P<version>\d+)(\.[^.]+)$")
+# Match: prefix ending with `_v`, numeric version, optional intermediate suffixes (e.g. `.1001`), then final extension
+RE_VERSION = re.compile(r"^(.+_v)(?P<version>\d+)(?P<suffix>(?:\.[^.]+)*)\.(?P<ext>[^.]+)$")
+
+
+def get_version_number(file: Path) -> int:
+    if match := RE_VERSION.match(file.name):
+        return int(match.group("version"))
+
+    return -1
 
 
 def get_last_version(file: Path) -> Path | None:
+    suffix = ""
+    if (m := RE_VERSION.match(file.name)) and (s := m.group("suffix")):
+        suffix = s
+
+    files = [
+        f
+        for f in file.parent.glob(f"*{file.suffix}")
+        if (m := RE_VERSION.match(f.name)) and m.group("suffix") == suffix
+    ]
+
     try:
-        return max(file.parent.glob(f"*{file.suffix}"))
+        return max(files, key=get_version_number)
     except ValueError as e:
         logger.warning(e)
         return None
@@ -18,7 +36,6 @@ def get_last_version(file: Path) -> Path | None:
 
 def get_next_version(file: Path) -> Path | None:
     version_nb = 0
-    last_version = get_last_version(file)
     if (last_version := get_last_version(file)) and (match := RE_VERSION.match(last_version.name)):
         version_nb = int(match.group("version"))
 
@@ -31,7 +48,8 @@ def get_next_version(file: Path) -> Path | None:
 def replace_version(s: str, new_version: int) -> str:
     def repl(m: re.Match) -> str:
         width = len(m.group("version"))
-        return f"{m.group(1)}{new_version:0{width}d}{m.group(3)}"
+        # Reconstruct: prefix + zero-padded version + optional suffix + final extension
+        return f"{m.group(1)}{new_version:0{width}d}{m.group('suffix')}.{m.group('ext')}"
 
     return RE_VERSION.sub(repl, s)
 
@@ -41,7 +59,7 @@ def format_word(word: str) -> str:
 
 
 def prettier(text: str) -> str:
-    return " ".join(format_word(word) for word in text.split()).replace("_", " ").replace(" ", "")
+    return " ".join(format_word(word) for word in text.split()).replace(" ", "")
 
 
 def get_path_before_keyword(path: Path, keywords: list[str]) -> Path:
@@ -66,8 +84,12 @@ def format_size(size: int) -> str:
 if __name__ == "__main__":
     from sbtw.core.log import logger
 
-    _folder = Path(r"E:\Sammy\Projects\Test\Assets\MyAsset\Modeling\MyAsset_Modeling_v001.txt")
-    logger.info("Last version is %s", get_last_version(_folder))
-    logger.info("Next version is %s", get_next_version(_folder))
-    logger.info("Last version is %s", get_last_version(_folder))
-    logger.info("Next version is %s", get_next_version(_folder))
+    _files = [
+        r"E:\Sammy\Projects\Test\Shots\epXXXshYYYY\Layout\epXXXshYYYY_Layout_v001.1001.txt",
+        r"E:\Sammy\Projects\Test\Shots\epXXXshYYYY\Layout\epXXXshYYYY_Layout_v001.1002.txt",
+        r"E:\Sammy\Projects\Test\Shots\epXXXshYYYY\Layout\epXXXshYYYY_Layout_v002.txt",
+        r"E:\Sammy\Projects\Test\Shots\epXXXshYYYY\Layout\epXXXshYYYY_Layout_v002.Modeling.txt",
+    ]
+    for _file in _files:
+        logger.info("Last version of %s is %s", _file, get_last_version(Path(_file)))
+        logger.info("Next version of %s is %s", _file, get_next_version(Path(_file)))

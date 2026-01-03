@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import shutil
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -7,13 +8,18 @@ from typing import TYPE_CHECKING
 from qtpy.QtCore import Signal
 from qtpy.QtWidgets import QTreeWidgetItem, QWidget
 
-from sbtw.actions.utils import get_last_version, get_next_version
+from sbtw.actions.utils import get_next_version
 from sbtw.core.log import logger
+from sbtw.core.manager import ProjectManager
 from sbtw.core.project import Project
 from sbtw.ui.view import View
 
 if TYPE_CHECKING:
     from qtpy.QtGui import QDragEnterEvent, QDragMoveEvent, QDropEvent
+
+
+# Match an optional group of numeric dot-suffixes before the final extension, e.g. `.1001` in `name_v001.1001.txt`
+RE_FILE = re.compile(r"^(?P<base>.+?)(?P<suffix>(?:\.\w+)+)?\.(?P<ext>[^.]+)$")
 
 
 class FilesView(View):
@@ -52,30 +58,38 @@ class FilesView(View):
         event.acceptProposedAction()
 
     def on_files_dropped(self, paths: list[Path]) -> None:
-        if not self.entity:
-            logger.warning("Cannot drag and drop files: you are not on a Task")
-            return
+        element = ProjectManager().get_current_element()
 
-        file = Path(
-            self.entity.get("path"), f"{self.entity.get('path').parent.stem}_{self.entity.get('path').stem}_v000"
-        )
+        file = Path(element.get("path"), f"{element.get('entity')}_{element.get('path').stem}_v000")
         project = Project()
         for path in paths:
             # -------------------- Get conformed filename --------------------
-            file.with_suffix(path.suffix).touch(exist_ok=True)
-            last_version = get_last_version(file.with_suffix(path.suffix))
-            new_path = get_next_version(last_version)
-            file.with_suffix(path.suffix).unlink(missing_ok=True)
+            suffix = ""
+            ext = path.suffix.lstrip(".")
+            # Try to detect a trailing numeric suffix like `.1001.ext`
+            if m2 := RE_FILE.match(path.name):
+                suffix = m2.group("suffix") or ""
+                ext = m2.group("ext")
+
+            template = file.with_name(f"{file.name}{suffix}.{ext}")
+            logger.info("Conforming %s Using template %s", path.as_posix(), template.as_posix())
+
+            # Ensure template exists temporarily so helper functions can inspect directory
+            template.touch(exist_ok=True)
+            try:
+                new_path = get_next_version(template)
+            finally:
+                template.unlink(missing_ok=True)
 
             # -------------------- Copying file --------------------
             logger.info("Creating %s from  %s ", new_path.as_posix(), path.as_posix())
             shutil.copy2(path, new_path)
 
             # -------------------- Set metadata --------------------
-            project.set_file_metadata(new_path, author=self.entity.get("username"))
+            project.set_file_metadata(new_path, author=element.get("username"))
 
         if paths:
-            self.row_selected.emit({"path": file})
+            self.row_selected.emit({"path": element.get("path")})
 
 
 if __name__ == "__main__":
