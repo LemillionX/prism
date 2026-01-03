@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QColor, QPixmap
@@ -13,6 +14,14 @@ from sbtw.ui.ui import MainWindow
 def launch():
     logger.info("Launching %s v%s ...", NAME, __version__)
     app = QApplication(sys.argv)
+
+    # Load dark stylesheet if available
+    qss_path = Path(__file__).parent / "style" / "dark.qss"
+    try:
+        if qss_path.exists():
+            app.setStyleSheet(qss_path.read_text(encoding="utf8"))
+    except (OSError, UnicodeDecodeError) as e:
+        logger.warning("Could not load stylesheet %s: %s", qss_path.as_posix(), e)
 
     # ------------- Splash Screen -------------
     splash_pix = QPixmap(SPLASH_SCREEN).scaled(

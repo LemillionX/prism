@@ -1,0 +1,138 @@
+/* Theme for SBTW */
+/* Base */
+QWidget { background: #1e1e24; color: #dcdcdc; font-family: Segoe UI, Arial, sans-serif; }
+QMainWindow { background: #1b1b1f; }
+
+/* Rounded corners for panels */
+QFrame, QGroupBox, QWidget { border-radius: 8px; }
+
+/* Labels */
+QLabel { color: #ddd; background: transparent; }
+
+/* Header, menus */
+QMenuBar { background: #2a2a2f; color: #ddd; }
+QMenu { background: #2a2a2f; color: #ddd; }
+QMenu::item:selected { background: #3a3a44; }
+
+/* Slider */
+QSlider::groove:horizontal {
+border: 1px solid #bbb;
+background: white;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal {
+background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,
+    stop: 0 #66e, stop: 1 #bbf);
+background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
+    stop: 0 #bbf, stop: 1 #55f);
+border: 1px solid #777;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::add-page:horizontal {
+background: #fff;
+border: 1px solid #777;
+height: 10px;
+border-radius: 4px;
+}
+
+QSlider::handle:horizontal {
+background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+    stop:0 #eee, stop:1 #ccc);
+border: 1px solid #777;
+width: 13px;
+margin-top: -2px;
+margin-bottom: -2px;
+border-radius: 4px;
+}
+
+QSlider::handle:horizontal:hover {
+background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+    stop:0 #fff, stop:1 #ddd);
+border: 1px solid #444;
+border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal:disabled {
+background: #bbb;
+border-color: #999;
+}
+
+QSlider::add-page:horizontal:disabled {
+background: #eee;
+border-color: #999;
+}
+
+QSlider::handle:horizontal:disabled {
+background: #eee;
+border: 1px solid #aaa;
+border-radius: 4px;
+}
+
+
+/* Tabs */
+QTabWidget::pane { background: #232326; border: 1px solid #2f2f35; }
+QTabBar::tab { background: #2a2a2f; color: #ddd; padding: 6px 12px; border: 1px solid #2f2f35; border-bottom: none; }
+QTabBar::tab:selected { background: #323239; }
+
+/* Buttons & inputs */
+QPushButton { background: #2d2d33; border: 1px solid #3a3a44; padding: 6px; border-radius: 4px; }
+QPushButton:hover { background: #3a3a44; }
+QLineEdit, QTextEdit, QPlainTextEdit { background: #17171a; border: 1px solid #2f2f35; color: #e6e6e6; padding: 4px; }
+
+/* Tree / Lists */
+QTreeWidget, QListWidget, QTableView { background: #17171a; alternate-background-color: #1b1b1f; gridline-color: #2a2a2f; }
+QHeaderView::section { background: #2a2a2f; color: #ddd; padding: 4px; border: 1px solid #2f2f35; }
+
+/* Scrollbars */
+QScrollBar:vertical { background: #1b1b1f; width: 4px; margin: 4px 0; }
+QScrollBar::handle:vertical { background: #333337; min-height: 8px; border-radius: 10px; }
+QScrollBar::add-line, QScrollBar::sub-line { height: 0; }
+
+/* Tooltip */
+QToolTip { background: #2a2a2f; color: #fff; border: 1px solid #3a3a44; padding: 4px; border-radius: 4px; }
+
+/* Specific tweaks */
+QLabel#projectLabel { font-weight: 600; color: #ffffff; }
+
+/* Ensure triangle branch icons are referenced (fallback / re-inserted) */
+QTreeView::branch:closed:has-children { image: url("sbtw/medias/triangle-closed.svg"); width: 16px; height: 16px; }
+QTreeView::branch:open:has-children { image: url("sbtw/medias/triangle-open.svg"); width: 16px; height: 16px; }
+
+/* Status labels via property. To mark a label 'OK' in code: `label.setProperty("status", "OK")` */
+QLabel[status="RTK"] {
+	background: #c24a4a;
+	color: #000000;
+	padding: 2px 6px;
+	border-radius: 4px;
+}
+
+/* Dialogs and input dialogs should follow the dark window style */
+QDialog, QInputDialog {
+    background: #1e1e24;
+    color: #dcdcdc;
+}
+QDialog QLabel, QInputDialog QLabel { color: #dcdcdc; }
+QDialog QPushButton, QInputDialog QPushButton { background: #2d2d33; color: #ddd; border: 1px solid #3a3a44; }
+QInputDialog QLineEdit { background: #17171a; color: #e6e6e6; border: 1px solid #2f2f35; }
+QLabel[status="HLD"] {
+	background: #ec2fec;
+	color: #000000;
+	padding: 2px 6px;
+	border-radius: 4px;
+}
+QLabel[status="WIP"] {
+	background: #ecb418;
+	color: #000000;
+	padding: 2px 6px;
+	border-radius: 4px;
+}
+QLabel[status="OK"] {
+	background: #7cc24a;
+	color: #000000;
+	padding: 2px 6px;
+	border-radius: 4px;
+}

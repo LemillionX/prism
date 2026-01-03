@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import ctypes
 import os
+import sys
 from enum import Enum
 from pathlib import Path
 
@@ -58,3 +60,19 @@ SOFTWARES = {
     ".wav": [MEDIAS_FOLDER / "audio-icon.png"],
     ".txt": [MEDIAS_FOLDER / "file-icon.png"],
 }
+
+
+# -------------------- UI --------------------
+def enable_windows_dark_titlebar(hwnd: int):
+    if sys.platform != "win32":
+        return
+
+    DWMWA_USE_IMMERSIVE_DARK_MODE = 20  # Windows 10 1903+  # noqa: N806
+    value = ctypes.c_int(1)
+
+    ctypes.windll.dwmapi.DwmSetWindowAttribute(
+        hwnd,
+        DWMWA_USE_IMMERSIVE_DARK_MODE,
+        ctypes.byref(value),
+        ctypes.sizeof(value),
+    )

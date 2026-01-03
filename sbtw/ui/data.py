@@ -44,6 +44,8 @@ class DataView(QWidget):
             if key == "icon":
                 alignment = Qt.AlignmentFlag.AlignLeft
             label = self.get_icons(value, parent=self) if key in {"icon"} else QLabel(str(value))
+            if key == "status":
+                label.setProperty("status", value)
             self.main_layout.addWidget(label, row, col, alignment=alignment)
 
     def get_icons(self, icons: list[Path], parent: QWidget | None = None) -> QWidget:

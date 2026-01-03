@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from qtpy.QtGui import QIcon
 from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
 from sbtw._version import __version__
-from sbtw.core.constant import APP_ICON, EntityType
+from sbtw.core.constant import APP_ICON, EntityType, enable_windows_dark_titlebar
 from sbtw.core.log import NAME, logger
 from sbtw.core.manager import ProjectManager
 from sbtw.ui.browser import Browser
@@ -31,6 +32,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f"{NAME} - v{__version__}")
         self.setMinimumSize(800, 500)
         self.resize(1200, 500)
+        hwnd = int(self.winId())
+        enable_windows_dark_titlebar(hwnd)
 
         # ------------- Variables -------------
         self.manager = ProjectManager()
@@ -155,4 +158,7 @@ if __name__ == "__main__":
     ui = MainWindow()
     ui.show()
 
+    sys.exit(app.exec())
+    sys.exit(app.exec())
+    sys.exit(app.exec())
     sys.exit(app.exec())
